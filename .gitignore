@@ -143,7 +143,6 @@ secrets/
 .secrets/
 
 # CI/CD
-.github/workflows/
 .github/workflows/secrets.yml
 
 # Testing
