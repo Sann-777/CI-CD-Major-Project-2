@@ -1,0 +1,58 @@
+{
+  "name": "studynotion-microservices",
+  "description": "StudyNotion EdTech Platform - Microservices Architecture",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm run install:frontend && npm run install:backend",
+    "install:frontend": "cd frontend-microservice && npm install",
+    "install:backend": "cd microservices && npm run install:all",
+    "dev:frontend": "cd frontend-microservice && npm run dev",
+    "dev:backend": "cd microservices && npm run dev:all",
+    "dev:all": "concurrently -n \"frontend,gateway,auth,course,payment\" -c \"bgBlue,bgGreen,bgYellow,bgMagenta,bgCyan\" \"npm run dev:frontend\" \"cd microservices/api-gateway && npm run dev\" \"cd microservices/auth-service && npm run dev\" \"cd microservices/course-service && npm run dev\" \"cd microservices/payment-service && npm run dev\"",
+    "build:all": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend-microservice && npm run build",
+    "build:backend": "cd microservices && npm run build:all",
+    "test:all": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend-microservice && npm test",
+    "test:backend": "cd microservices && npm run test:all",
+    "lint:all": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "cd frontend-microservice && npm run lint",
+    "lint:backend": "cd microservices && npm run lint:all",
+    "docker:build": "docker-compose -f microservices/docker-compose.yml build",
+    "docker:up": "docker-compose -f microservices/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f microservices/docker-compose.yml down",
+    "k8s:deploy": "kubectl apply -f microservices/k8s/",
+    "k8s:delete": "kubectl delete -f microservices/k8s/",
+    "legacy:start": "cd monolithic-legacy && npm start",
+    "legacy:server": "cd monolithic-legacy/server && npm run dev",
+    "legacy:dev": "cd monolithic-legacy && npm run dev"
+  },
+  "workspaces": [
+    "frontend-microservice",
+    "microservices/api-gateway",
+    "microservices/auth-service",
+    "microservices/course-service",
+    "microservices/payment-service"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.0.1",
+    "cross-env": "^7.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "microservices",
+    "edtech",
+    "studynotion",
+    "react",
+    "nodejs",
+    "mongodb",
+    "kubernetes",
+    "docker"
+  ],
+  "author": "StudyNotion Team",
+  "license": "MIT"
+}
