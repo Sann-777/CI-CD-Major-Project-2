@@ -39,8 +39,14 @@ apiConnector.interceptors.response.use(
       window.location.href = '/login';
     }
     
-    const message = error.response?.data?.message || 'Something went wrong';
-    toast.error(message);
+    // Don't show toast for auth API calls as they handle their own error messages
+    const isAuthAPI = error.config?.url?.includes('/auth/');
+    const isContactAPI = error.config?.url?.includes('/notification/contact');
+    
+    if (!isAuthAPI && !isContactAPI) {
+      const message = error.response?.data?.message || 'Service temporarily unavailable';
+      toast.error(message);
+    }
     
     return Promise.reject(error);
   }
@@ -110,7 +116,7 @@ export const endpoints = {
   
   // Contact and Notification Endpoints
   CONTACT: {
-    CONTACT_US_API: '/api/v1/reach/contact',
+    CONTACT_US_API: '/api/v1/notification/contact',
   },
   
   // Media Upload Endpoints

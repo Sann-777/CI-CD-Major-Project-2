@@ -38,8 +38,14 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/studynoti
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('Auth Service: Connected to MongoDB'))
-.catch(err => console.error('Auth Service: MongoDB connection error:', err));
+.then(() => {
+  console.log('Auth Service: Connected to MongoDB');
+  console.log('Database:', mongoose.connection.db.databaseName);
+})
+.catch(err => {
+  console.error('Auth Service: MongoDB connection error:', err);
+  process.exit(1);
+});
 
 // Routes
 app.use('/api/v1/auth', authRoutes);

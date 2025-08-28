@@ -7,6 +7,7 @@ const {
   signup,
   sendotp,
   changePassword,
+  getUserById,
 } = require('../controllers/authController');
 const {
   resetPasswordToken,
@@ -33,6 +34,7 @@ router.post('/login', loginValidation, login);
 router.post('/signup', signupValidation, signup);
 router.post('/sendotp', [body('email').isEmail()], sendotp);
 router.post('/changepassword', auth, changePassword);
+router.get('/user/:id', auth, getUserById);
 
 // Reset Password routes
 router.post('/reset-password-token', resetPasswordToken);

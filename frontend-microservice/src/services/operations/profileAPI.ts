@@ -1,6 +1,6 @@
 import { Dispatch } from '@reduxjs/toolkit'
 import toast from 'react-hot-toast'
-import { apiConnector, endpoints } from '../api'
+import { apiConnectorLegacy as apiConnector, endpoints } from '../api'
 import { setUser, setLoading } from '@/store/slices/profileSlice'
 import { logout } from './authAPI'
 
@@ -19,9 +19,7 @@ export function getUserDetails(token: string, navigate: any) {
     dispatch(setLoading(true))
     try {
       const response = await apiConnector('GET', GET_USER_DETAILS_API, null, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        Authorization: `Bearer ${token}`,
       })
 
       console.log('GET_USER_DETAILS API RESPONSE............', response)
@@ -55,9 +53,7 @@ export async function getUserEnrolledCourses(token: string) {
       GET_USER_ENROLLED_COURSES_API,
       null,
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        Authorization: `Bearer ${token}`,
       }
     )
     console.log('AFTER Calling BACKEND API FOR ENROLLED COURSES')

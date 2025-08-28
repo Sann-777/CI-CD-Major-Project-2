@@ -55,7 +55,7 @@ const CodeBlocks: React.FC<CodeBlocksProps> = ({
       </div>
 
       {/* Section 2 */}
-      <div className="h-fit code-border flex flex-row py-6 text-sm sm:text-base leading-[22px] sm:leading-7 relative w-[100%] lg:w-[550px]">
+      <div className="h-fit code-border flex flex-row py-6 text-sm sm:text-base lg:text-lg leading-[22px] sm:leading-7 relative w-[100%] lg:w-[550px]">
         {backgroundGradient}
         {/* Indexing */}
         <div className="text-center flex flex-col w-[10%] select-none text-richblack-400 font-inter font-bold">

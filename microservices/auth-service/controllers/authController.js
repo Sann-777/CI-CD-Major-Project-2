@@ -71,7 +71,7 @@ exports.signup = async (req, res) => {
 
     // Create the user
     let approved = "";
-    approved === "Instructor" ? (approved = false) : (approved = true);
+    approved = accountType === "Instructor" ? false : true;
 
     const user = await User.create({
       firstName,
@@ -163,11 +163,14 @@ exports.login = async (req, res) => {
 // Send OTP For Email Verification
 exports.sendotp = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, checkUserPresent } = req.body;
 
     // Check if user is already present
-    const checkUserPresent = await User.findOne({ email });
-    if (checkUserPresent) {
+    const existingUser = await User.findOne({ email });
+    
+    // If checkUserPresent is true, we're checking for new user registration
+    // If user exists, return error
+    if (checkUserPresent && existingUser) {
       return res.status(401).json({
         success: false,
         message: `User is Already Registered`,
@@ -186,7 +189,10 @@ exports.sendotp = async (req, res) => {
     while (result) {
       otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
+        lowerCaseAlphabets: false,
+        specialChars: false,
       });
+      result = await OTP.findOne({ otp: otp });
     }
     const otpPayload = { email, otp };
     const otpBody = await OTP.create(otpPayload);
@@ -199,6 +205,33 @@ exports.sendotp = async (req, res) => {
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// Get user by ID (for inter-service communication)
+exports.getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await User.findById(id).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching user'
+    });
   }
 };
 

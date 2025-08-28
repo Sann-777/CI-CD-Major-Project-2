@@ -32,11 +32,11 @@ app.use(express.urlencoded({ extended: true }));
 const services = {
   auth: process.env.AUTH_SERVICE_URL || 'http://localhost:3001',
   course: process.env.COURSE_SERVICE_URL || 'http://localhost:3003',
-  payment: process.env.PAYMENT_SERVICE_URL || 'http://localhost:3004',
-  profile: process.env.PROFILE_SERVICE_URL || 'http://localhost:3002',
-  rating: process.env.RATING_SERVICE_URL || 'http://localhost:3005',
+  payment: process.env.PAYMENT_SERVICE_URL || 'http://localhost:3002',
+  profile: process.env.PROFILE_SERVICE_URL || 'http://localhost:3004',
+  rating: process.env.RATING_SERVICE_URL || 'http://localhost:3007',
   notification: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3006',
-  media: process.env.MEDIA_SERVICE_URL || 'http://localhost:3007'
+  media: process.env.MEDIA_SERVICE_URL || 'http://localhost:3005'
 };
 
 // Proxy configuration
@@ -44,19 +44,33 @@ const createProxy = (target) => createProxyMiddleware({
   target,
   changeOrigin: true,
   timeout: 30000,
+  logLevel: 'debug',
   onError: (err, req, res) => {
     console.error(`Proxy error for ${target}:`, err.message);
-    res.status(503).json({
-      success: false,
-      message: 'Service temporarily unavailable',
-      error: 'PROXY_ERROR'
-    });
+    if (!res.headersSent) {
+      res.status(503).json({
+        success: false,
+        message: 'Service temporarily unavailable',
+        error: 'PROXY_ERROR'
+      });
+    }
   },
   onProxyReq: (proxyReq, req, res) => {
+    console.log(`Proxying ${req.method} ${req.url} to ${target}`);
     // Forward original headers
     if (req.headers.authorization) {
       proxyReq.setHeader('Authorization', req.headers.authorization);
     }
+    // Handle body for POST requests
+    if (req.body && (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH')) {
+      const bodyData = JSON.stringify(req.body);
+      proxyReq.setHeader('Content-Type', 'application/json');
+      proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+      proxyReq.write(bodyData);
+    }
+  },
+  onProxyRes: (proxyRes, req, res) => {
+    console.log(`Response from ${req.url}: ${proxyRes.statusCode}`);
   }
 });
 
@@ -78,11 +92,11 @@ app.get('/health', async (req, res) => {
   // Check health of all services
   for (const [serviceName, serviceUrl] of Object.entries(services)) {
     try {
-      const response = await fetch(`${serviceUrl}/health`, { 
-        method: 'GET',
+      const axios = require('axios');
+      const response = await axios.get(`${serviceUrl}/health`, { 
         timeout: 5000 
       });
-      healthChecks[serviceName] = response.ok ? 'healthy' : 'unhealthy';
+      healthChecks[serviceName] = response.status === 200 ? 'healthy' : 'unhealthy';
     } catch (error) {
       healthChecks[serviceName] = 'unreachable';
     }

@@ -4,7 +4,6 @@ import { apiConnectorLegacy as apiConnector, endpoints } from '../api'
 import { setLoading, setToken } from '@/store/slices/authSlice'
 import { resetCart } from '@/store/slices/cartSlice'
 import { setUser } from '@/store/slices/profileSlice'
-import { LoginFormData, SignupFormData, ApiResponse } from '@/types'
 
 const {
   SENDOTP_API,
@@ -34,7 +33,12 @@ export function sendOtp(email: string, navigate: any) {
       navigate('/verify-email')
     } catch (error: any) {
       console.log('SENDOTP API ERROR............', error)
-      toast.error('Could Not Send OTP')
+      const errorMessage = error.response?.data?.message || 'Could Not Send OTP'
+      if (errorMessage.includes('Already Registered')) {
+        toast.error('Email already exists. Please sign in to continue.')
+      } else {
+        toast.error(errorMessage)
+      }
     }
     dispatch(setLoading(false))
     toast.dismiss(toastId)
@@ -74,7 +78,12 @@ export function signUp(
       navigate('/login')
     } catch (error: any) {
       console.log('SIGNUP API ERROR............', error)
-      toast.error('Signup Failed')
+      const errorMessage = error.response?.data?.message || 'Signup Failed'
+      if (errorMessage.includes('already exists')) {
+        toast.error('Email already exists. Please sign in to continue.')
+      } else {
+        toast.error(errorMessage)
+      }
       navigate('/signup')
     }
     dispatch(setLoading(false))
@@ -84,7 +93,7 @@ export function signUp(
 
 export function login(email: string, password: string, navigate: any) {
   return async (dispatch: Dispatch) => {
-    const toastId = toast.loading('Loading...')
+    const toastId = toast.loading('Logging in...')
     dispatch(setLoading(true))
     try {
       const response = await apiConnector('POST', LOGIN_API, {
@@ -98,7 +107,6 @@ export function login(email: string, password: string, navigate: any) {
         throw new Error(response.data.message)
       }
 
-      toast.success('Login Successful')
       dispatch(setToken(response.data.token))
       
       const userImage = response.data?.user?.image
@@ -108,11 +116,20 @@ export function login(email: string, password: string, navigate: any) {
       dispatch(setUser({ ...response.data.user, image: userImage }))
       
       localStorage.setItem('token', JSON.stringify(response.data.token))
-      localStorage.setItem('user', JSON.stringify(response.data.user))
+      localStorage.setItem('user', JSON.stringify({ ...response.data.user, image: userImage }))
+      
+      toast.success('Login Successful')
       navigate('/dashboard/my-profile')
     } catch (error: any) {
       console.log('LOGIN API ERROR............', error)
-      toast.error('Login Failed')
+      const errorMessage = error.response?.data?.message || 'Login Failed'
+      if (errorMessage.includes('not Registered')) {
+        toast.error('User not found. Please sign up first.')
+      } else if (errorMessage.includes('Password is incorrect')) {
+        toast.error('Invalid password. Please try again.')
+      } else {
+        toast.error(errorMessage)
+      }
     }
     dispatch(setLoading(false))
     toast.dismiss(toastId)

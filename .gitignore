@@ -153,3 +153,4 @@ test-results.xml
 # Misc
 *.tsbuildinfo
 .turbo/
+*.txt
