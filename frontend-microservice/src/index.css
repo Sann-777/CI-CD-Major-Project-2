@@ -70,6 +70,13 @@ body {
   overflow-x: hidden;
 }
 
+/* Minimal responsive typography for laptop screens */
+@media (min-width: 1024px) {
+  body {
+    font-size: 1.7rem;
+  }
+}
+
 /* Custom utility classes */
 @layer utilities {
   .text-gradient {
