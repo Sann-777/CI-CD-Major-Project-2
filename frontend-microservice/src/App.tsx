@@ -44,11 +44,11 @@ function App() {
   const { loading } = useSelector((state: RootState) => state.auth)
 
   useEffect(() => {
-    if (localStorage.getItem('token')) {
+    if (localStorage.getItem('token') && !user) {
       const token = JSON.parse(localStorage.getItem('token')!)
       dispatch(getUserDetails(token, navigate))
     }
-  }, [dispatch, navigate])
+  }, [dispatch, navigate, user])
 
   if (loading) {
     return (
