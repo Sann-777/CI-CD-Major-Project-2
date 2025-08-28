@@ -29,7 +29,7 @@ const Home = () => {
         </Link>
 
         {/* Heading */}
-        <div className="text-center text-4xl font-semibold lg:text-5xl py-4 max-w-4xl">
+        <div className="text-center text-4xl lg:text-5xl font-semibold py-4 max-w-4xl">
           Unlock your <HighlightText text="coding potential" /> with
           our online courses.
         </div>
@@ -78,7 +78,7 @@ const Home = () => {
           <CodeBlocks
             position={'lg:flex-row'}
             heading={
-              <div className="text-5xl font-semibold lg:text-6xl py-4">
+              <div className="text-5xl lg:text-6xl font-semibold py-4">
                 Unlock your
                 <span className="text-gradient"> coding potential </span>
                 with our online courses.
@@ -108,7 +108,7 @@ const Home = () => {
           <CodeBlocks
             position={'lg:flex-row-reverse'}
             heading={
-              <div className="w-[100%] text-5xl font-semibold lg:w-[50%] lg:text-6xl py-4">
+              <div className="w-[100%] text-5xl lg:text-6xl font-semibold lg:w-[50%] py-4">
                 Start
                 <span className="text-gradient"> coding in seconds</span>
               </div>
@@ -159,7 +159,7 @@ const Home = () => {
         <div className="mx-auto flex w-11/12 max-w-maxContent flex-col items-center justify-between gap-8">
           {/* Job that is in Demand - Section 1 */}
           <div className="mb-16 mt-[-100px] flex flex-col justify-between gap-12 lg:mt-20 lg:flex-row lg:gap-0">
-            <div className="text-5xl font-semibold lg:w-[45%] lg:text-6xl py-4">
+            <div className="text-5xl lg:text-6xl font-semibold lg:w-[45%] py-4">
               Get the skills you need for a{' '}
               <span className="text-gradient">job that is in demand.</span>
             </div>
@@ -189,7 +189,7 @@ const Home = () => {
         <InstructorSection />
 
         {/* Reviws from Other Learner */}
-        <h1 className="text-center text-5xl font-semibold mt-12 lg:text-6xl py-4">
+        <h1 className="text-center text-5xl lg:text-6xl font-semibold mt-12 py-4">
           Reviews from other learners
         </h1>
         <ReviewSlider />
