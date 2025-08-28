@@ -102,10 +102,10 @@ const Footer = () => {
                   )
                 })}
               </div>
+
               <h1 className="text-richblack-50 font-semibold text-[16px] mt-7">
                 Community
               </h1>
-
               <div className="flex flex-col gap-2 mt-2">
                 {Community.map((ele, index) => {
                   return (
