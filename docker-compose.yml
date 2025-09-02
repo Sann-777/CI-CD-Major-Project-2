@@ -1,0 +1,219 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./microservices/api-gateway
+      dockerfile: Dockerfile
+    container_name: studynotion-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - COURSE_SERVICE_URL=http://course-service:3003
+      - PAYMENT_SERVICE_URL=http://payment-service:3002
+      - PROFILE_SERVICE_URL=http://profile-service:3004
+      - RATING_SERVICE_URL=http://rating-service:3005
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3006
+      - MEDIA_SERVICE_URL=http://media-service:3007
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
+      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
+    depends_on:
+      - mongo
+      - auth-service
+      - course-service
+      - payment-service
+      - profile-service
+      - rating-service
+      - notification-service
+      - media-service
+    networks:
+      - studynotion-network
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: ./microservices/auth-service
+      dockerfile: Dockerfile
+    container_name: studynotion-auth-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/auth?authSource=admin
+      - JWT_SECRET=eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTc1NjMxNjgzNywiaWF0IjoxNzU2MzE2ODM3fQ.EvGjJt9d_FB2SOw3oOdeJfdWPmcgozMURlrNmK020YQ
+      - MAIL_HOST=smtp.gmail.com
+      - MAIL_USER=hazardeager@gmail.com
+      - MAIL_PASS=eesk muta aupm uxuq
+      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
+    depends_on:
+      - mongo
+    networks:
+      - studynotion-network
+    restart: unless-stopped
+
+  course-service:
+    build:
+      context: ./microservices/course-service
+      dockerfile: Dockerfile
+    container_name: studynotion-course-service
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/courses?authSource=admin
+      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
+      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
+    depends_on:
+      - mongo
+    networks:
+      - studynotion-network
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: ./microservices/payment-service
+      dockerfile: Dockerfile
+    container_name: studynotion-payment-service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/payments?authSource=admin
+      - JWT_SECRET=${JWT_SECRET:-default-secret-key}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_SECRET=${RAZORPAY_SECRET}
+    depends_on:
+      - mongo
+    networks:
+      - studynotion-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend-microservice
+      dockerfile: Dockerfile
+    container_name: studynotion-frontend
+    ports:
+      - "3008:3008"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - VITE_API_URL=http://api-gateway:3000
+      - VITE_BACKEND_URL=http://api-gateway:3000
+    depends_on:
+      - api-gateway
+    networks:
+      - studynotion-network
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6.0
+    container_name: studynotion-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password123}
+    volumes:
+      - mongo-data:/data/db
+      - ./microservices/scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - studynotion-network
+    restart: unless-stopped
+
+  profile-service:
+    build:
+      context: ./microservices/profile-service
+      dockerfile: Dockerfile
+    container_name: studynotion-profile-service
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/profile?authSource=admin
+      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-studynotion-cloud}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-your-api-key}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-your-api-secret}
+      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
+    depends_on:
+      - mongo
+    networks:
+      - studynotion-network
+    restart: unless-stopped
+
+  rating-service:
+    build:
+      context: ./microservices/rating-service
+      dockerfile: Dockerfile
+    container_name: studynotion-rating-service
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/ratings?authSource=admin
+      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
+      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
+    depends_on:
+      - mongo
+    networks:
+      - studynotion-network
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./microservices/notification-service
+      dockerfile: Dockerfile
+    container_name: studynotion-notification-service
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/notifications?authSource=admin
+      - JWT_SECRET=eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTc1NjMxNjgzNywiaWF0IjoxNzU2MzE2ODM3fQ.EvGjJt9d_FB2SOw3oOdeJfdWPmcgozMURlrNmK020YQ
+      - MAIL_HOST=smtp.gmail.com
+      - MAIL_USER=hazardeager@gmail.com
+      - MAIL_PASS=eesk muta aupm uxuq
+      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
+    depends_on:
+      - mongo
+    networks:
+      - studynotion-network
+    restart: unless-stopped
+
+  media-service:
+    build:
+      context: ./microservices/media-service
+      dockerfile: Dockerfile
+    container_name: studynotion-media-service
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/media?authSource=admin
+      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-studynotion-cloud}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-your-api-key}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-your-api-secret}
+      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
+    depends_on:
+      - mongo
+    networks:
+      - studynotion-network
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  studynotion-network:
+    driver: bridge

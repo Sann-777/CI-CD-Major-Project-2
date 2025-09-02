@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
-const axios = require('axios');
 
-// Authentication middleware - validates JWT and fetches user info from auth service
+// Authentication middleware - validates JWT locally
 exports.auth = async (req, res, next) => {
   try {
     const token = 
@@ -17,14 +16,9 @@ exports.auth = async (req, res, next) => {
     }
 
     try {
-      // Verify token with auth service
-      const authResponse = await axios.post(
-        `${process.env.AUTH_SERVICE_URL}/api/v1/auth/verify-token`,
-        { token },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      req.user = authResponse.data.user;
+      // Verify token locally using JWT_SECRET
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
     } catch (error) {
       return res.status(401).json({ 
         success: false, 

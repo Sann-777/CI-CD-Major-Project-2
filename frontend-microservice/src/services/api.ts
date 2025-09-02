@@ -33,13 +33,14 @@ apiConnector.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    // Don't auto-redirect on 401 for login attempts
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
     
-    // Don't show toast for auth API calls as they handle their own error messages
+    // Don't show toast for auth and contact API calls as they handle their own error messages
     const isAuthAPI = error.config?.url?.includes('/auth/');
     const isContactAPI = error.config?.url?.includes('/notification/contact');
     

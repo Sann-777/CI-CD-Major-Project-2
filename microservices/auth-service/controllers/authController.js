@@ -20,17 +20,57 @@ exports.signup = async (req, res) => {
     } = req.body;
 
     // Check if All Details are there or not
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !password ||
-      !confirmPassword ||
-      !otp
-    ) {
-      return res.status(403).send({
+    if (!firstName) {
+      return res.status(400).json({
         success: false,
-        message: "All Fields are required",
+        message: "First name is required",
+      });
+    }
+    if (!lastName) {
+      return res.status(400).json({
+        success: false,
+        message: "Last name is required",
+      });
+    }
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: "Password is required",
+      });
+    }
+    if (!confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Confirm password is required",
+      });
+    }
+    if (!otp) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP is required for verification",
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password. Please check your credentials and try again.",
+      });
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long",
       });
     }
 
@@ -38,17 +78,16 @@ exports.signup = async (req, res) => {
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
-        message:
-          "Password and Confirm Password do not match. Please try again.",
+        message: "Password and confirm password do not match. Please try again.",
       });
     }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
-        message: "User already exists. Please sign in to continue.",
+        message: "An account with this email already exists. Please sign in instead or use a different email address.",
       });
     }
 
@@ -57,12 +96,23 @@ exports.signup = async (req, res) => {
     if (response.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "The OTP is not valid",
+        message: "No OTP found for this email. Please request a new OTP.",
       });
     } else if (otp !== response[0].otp) {
       return res.status(400).json({
         success: false,
-        message: "The OTP is not valid",
+        message: "Invalid OTP. Please check your email and enter the correct OTP.",
+      });
+    }
+
+    // Check if OTP has expired (additional safety check)
+    const otpCreatedAt = new Date(response[0].createdAt);
+    const currentTime = new Date();
+    const timeDifference = (currentTime - otpCreatedAt) / 1000 / 60; // in minutes
+    if (timeDifference > 5) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired. Please request a new OTP.",
       });
     }
 
@@ -103,10 +153,25 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     // Check if email or password is missing
-    if (!email || !password) {
+    if (!email) {
       return res.status(400).json({
         success: false,
-        message: `Please Fill up All the Required Fields`,
+        message: "Email is required",
+      });
+    }
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: "Password is required",
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password. Please check your credentials and try again.",
       });
     }
 
@@ -117,7 +182,7 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: `User is not Registered with Us Please SignUp to Continue`,
+        message: "Invalid email or password. Please check your credentials and try again.",
       });
     }
 
@@ -148,7 +213,7 @@ exports.login = async (req, res) => {
     } else {
       return res.status(401).json({
         success: false,
-        message: `Password is incorrect`,
+        message: "Invalid email or password. Please check your credentials and try again.",
       });
     }
   } catch (error) {
@@ -168,12 +233,21 @@ exports.sendotp = async (req, res) => {
     // Check if user is already present
     const existingUser = await User.findOne({ email });
     
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password. Please check your credentials and try again.",
+      });
+    }
+
     // If checkUserPresent is true, we're checking for new user registration
     // If user exists, return error
     if (checkUserPresent && existingUser) {
-      return res.status(401).json({
+      return res.status(409).json({
         success: false,
-        message: `User is Already Registered`,
+        message: "An account with this email already exists. Please sign in instead.",
       });
     }
 
@@ -204,7 +278,11 @@ exports.sendotp = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ 
+      success: false, 
+      message: "Failed to send OTP. Please try again later.",
+      error: error.message 
+    });
   }
 };
 

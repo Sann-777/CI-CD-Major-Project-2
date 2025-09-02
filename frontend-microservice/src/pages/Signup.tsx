@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import { sendOtp } from '@/services/operations/authAPI'
 import { setSignupData } from '@/store/slices/authSlice'
 import { ACCOUNT_TYPE } from '@/types'
@@ -42,7 +43,7 @@ function Signup() {
     e.preventDefault()
 
     if (password !== confirmPassword) {
-      toast.error("Passwords Don't Match")
+      toast.error("Password and confirm password do not match. Please try again.")
       return
     }
     const signupData = {

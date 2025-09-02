@@ -34,11 +34,7 @@ export function sendOtp(email: string, navigate: any) {
     } catch (error: any) {
       console.log('SENDOTP API ERROR............', error)
       const errorMessage = error.response?.data?.message || 'Could Not Send OTP'
-      if (errorMessage.includes('Already Registered')) {
-        toast.error('Email already exists. Please sign in to continue.')
-      } else {
-        toast.error(errorMessage)
-      }
+      toast.error(errorMessage)
     }
     dispatch(setLoading(false))
     toast.dismiss(toastId)
@@ -79,11 +75,7 @@ export function signUp(
     } catch (error: any) {
       console.log('SIGNUP API ERROR............', error)
       const errorMessage = error.response?.data?.message || 'Signup Failed'
-      if (errorMessage.includes('already exists')) {
-        toast.error('Email already exists. Please sign in to continue.')
-      } else {
-        toast.error(errorMessage)
-      }
+      toast.error(errorMessage)
       navigate('/signup')
     }
     dispatch(setLoading(false))
@@ -123,13 +115,7 @@ export function login(email: string, password: string, navigate: any) {
     } catch (error: any) {
       console.log('LOGIN API ERROR............', error)
       const errorMessage = error.response?.data?.message || 'Login Failed'
-      if (errorMessage.includes('not Registered')) {
-        toast.error('User not found. Please sign up first.')
-      } else if (errorMessage.includes('Password is incorrect')) {
-        toast.error('Invalid password. Please try again.')
-      } else {
-        toast.error(errorMessage)
-      }
+      toast.error(errorMessage)
     }
     dispatch(setLoading(false))
     toast.dismiss(toastId)
@@ -198,7 +184,8 @@ export function resetPassword(password: string, confirmPassword: string, token: 
       navigate('/login')
     } catch (error: any) {
       console.log('RESETPASSWORD ERROR............', error)
-      toast.error('Failed To Reset Password')
+      const errorMessage = error.response?.data?.message || 'Failed To Reset Password'
+      toast.error(errorMessage)
     }
     toast.dismiss(toastId)
     dispatch(setLoading(false))
