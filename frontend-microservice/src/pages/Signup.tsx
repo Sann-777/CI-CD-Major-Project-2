@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
-import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { sendOtp } from '@/services/operations/authAPI'
 import { setSignupData } from '@/store/slices/authSlice'
+import { useAppDispatch } from '@/store'
 import { ACCOUNT_TYPE } from '@/types'
 import Tab from '@/components/Common/Tab'
 import frameImg from '@/assets/Images/frame.png'
@@ -12,10 +12,10 @@ import signupImg from '@/assets/Images/signup.webp'
 
 function Signup() {
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   // student or instructor
-  const [accountType, setAccountType] = useState(ACCOUNT_TYPE.STUDENT)
+  const [accountType, setAccountType] = useState<string>(ACCOUNT_TYPE.STUDENT)
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -49,6 +49,7 @@ function Signup() {
     const signupData = {
       ...formData,
       accountType,
+      otp: '',
     }
 
     // Setting signup data to state

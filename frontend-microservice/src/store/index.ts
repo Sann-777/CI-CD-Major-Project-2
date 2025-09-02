@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
 import authSlice from './slices/authSlice';
 import profileSlice from './slices/profileSlice';
 import cartSlice from './slices/cartSlice';
@@ -24,3 +25,6 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
+// Typed dispatch hook
+export const useAppDispatch = () => useDispatch<AppDispatch>();
