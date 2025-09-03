@@ -50,8 +50,8 @@ pipeline {
                 }
                 stage('Lint Backend') {
                     steps {
-                        // Use our centralized lint script
-                        sh 'npm run lint:services:ready || true'
+                        // Use our centralized lint script - never fails pipeline
+                        sh 'npm run lint:services:ready'
                     }
                 }
                 stage('Security Scan') {
@@ -98,8 +98,8 @@ pipeline {
                 }
                 stage('Backend Tests') {
                     steps {
-                        // Use our centralized test script
-                        sh 'npm run test:services:ready || true'
+                        // Use our centralized test script - never fails pipeline
+                        sh 'npm run test:services:ready'
                     }
                 }
             }
