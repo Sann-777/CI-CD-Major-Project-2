@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 const axios = require('axios');
 const mongoose = require('mongoose');
@@ -8,7 +7,7 @@ require('dotenv').config({ path: './auth-service/.env' });
 const services = {
   'API Gateway': 'http://localhost:3000',
   'Auth Service': 'http://localhost:3001',
-  'Course Service': 'http://localhost:3003'
+  'Course Service': 'http://localhost:3003',
 };
 
 async function checkServices() {
@@ -50,7 +49,7 @@ async function testEmailConfig() {
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
-      }
+      },
     });
     
     await transporter.verify();
@@ -66,7 +65,7 @@ async function testRegistrationFlow() {
   try {
     // Test OTP generation
     const otpResponse = await axios.post('http://localhost:3000/api/v1/auth/sendotp', {
-      email: 'test@example.com'
+      email: 'test@example.com',
     });
     
     if (otpResponse.data.success) {

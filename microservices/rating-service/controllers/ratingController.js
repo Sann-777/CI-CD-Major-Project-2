@@ -11,7 +11,7 @@ exports.createRating = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -65,7 +65,7 @@ exports.createRating = async (req, res) => {
           ratingAndReviews: ratingReview._id,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     console.log(updatedCourse);

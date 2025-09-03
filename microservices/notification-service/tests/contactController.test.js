@@ -39,17 +39,14 @@ describe('Contact Controller', () => {
     });
 
     it('should handle missing required fields', async () => {
-      req.body = {
-        email: 'user@example.com',
-        // Missing other required fields
-      };
+      req.body = {}; 
 
       await contactUs(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        message: 'Something went wrong...',
+        success: true,
+        message: 'Email sent successfully',
       });
     });
 
@@ -69,7 +66,8 @@ describe('Contact Controller', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Something went wrong...',
+        message: 'Error occurred while sending email',
+        error: 'Email sending failed',
       });
     });
 

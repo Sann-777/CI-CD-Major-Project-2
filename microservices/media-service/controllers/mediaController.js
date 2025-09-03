@@ -6,7 +6,7 @@ exports.uploadImage = async (req, res) => {
     if (!req.files || !req.files.file) {
       return res.status(400).json({
         success: false,
-        message: 'No file uploaded'
+        message: 'No file uploaded',
       });
     }
 
@@ -19,7 +19,7 @@ exports.uploadImage = async (req, res) => {
     if (!supportedTypes.includes(fileType)) {
       return res.status(400).json({
         success: false,
-        message: 'File format not supported'
+        message: 'File format not supported',
       });
     }
 
@@ -29,14 +29,14 @@ exports.uploadImage = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Image uploaded successfully',
-      data: response
+      data: response,
     });
   } catch (error) {
     console.error('Image upload error:', error);
     res.status(500).json({
       success: false,
       message: 'Error uploading image',
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -47,7 +47,7 @@ exports.uploadVideo = async (req, res) => {
     if (!req.files || !req.files.file) {
       return res.status(400).json({
         success: false,
-        message: 'No file uploaded'
+        message: 'No file uploaded',
       });
     }
 
@@ -60,7 +60,7 @@ exports.uploadVideo = async (req, res) => {
     if (!supportedTypes.includes(fileType)) {
       return res.status(400).json({
         success: false,
-        message: 'Video format not supported'
+        message: 'Video format not supported',
       });
     }
 
@@ -70,14 +70,14 @@ exports.uploadVideo = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Video uploaded successfully',
-      data: response
+      data: response,
     });
   } catch (error) {
     console.error('Video upload error:', error);
     res.status(500).json({
       success: false,
       message: 'Error uploading video',
-      error: error.message
+      error: error.message,
     });
   }
 };

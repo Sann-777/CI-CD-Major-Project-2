@@ -23,37 +23,37 @@ exports.signup = async (req, res) => {
     if (!firstName) {
       return res.status(400).json({
         success: false,
-        message: "First name is required",
+        message: 'First name is required',
       });
     }
     if (!lastName) {
       return res.status(400).json({
         success: false,
-        message: "Last name is required",
+        message: 'Last name is required',
       });
     }
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Email is required",
+        message: 'Email is required',
       });
     }
     if (!password) {
       return res.status(400).json({
         success: false,
-        message: "Password is required",
+        message: 'Password is required',
       });
     }
     if (!confirmPassword) {
       return res.status(400).json({
         success: false,
-        message: "Confirm password is required",
+        message: 'Confirm password is required',
       });
     }
     if (!otp) {
       return res.status(400).json({
         success: false,
-        message: "OTP is required for verification",
+        message: 'OTP is required for verification',
       });
     }
 
@@ -62,7 +62,7 @@ exports.signup = async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid email or password. Please check your credentials and try again.",
+        message: 'Invalid email or password. Please check your credentials and try again.',
       });
     }
 
@@ -70,7 +70,7 @@ exports.signup = async (req, res) => {
     if (password.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters long",
+        message: 'Password must be at least 8 characters long',
       });
     }
 
@@ -78,7 +78,7 @@ exports.signup = async (req, res) => {
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
-        message: "Password and confirm password do not match. Please try again.",
+        message: 'Password and confirm password do not match. Please try again.',
       });
     }
 
@@ -87,7 +87,7 @@ exports.signup = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: "An account with this email already exists. Please sign in instead or use a different email address.",
+        message: 'An account with this email already exists. Please sign in instead or use a different email address.',
       });
     }
 
@@ -96,12 +96,12 @@ exports.signup = async (req, res) => {
     if (response.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "No OTP found for this email. Please request a new OTP.",
+        message: 'No OTP found for this email. Please request a new OTP.',
       });
     } else if (otp !== response[0].otp) {
       return res.status(400).json({
         success: false,
-        message: "Invalid OTP. Please check your email and enter the correct OTP.",
+        message: 'Invalid OTP. Please check your email and enter the correct OTP.',
       });
     }
 
@@ -112,7 +112,7 @@ exports.signup = async (req, res) => {
     if (timeDifference > 5) {
       return res.status(400).json({
         success: false,
-        message: "OTP has expired. Please request a new OTP.",
+        message: 'OTP has expired. Please request a new OTP.',
       });
     }
 
@@ -120,8 +120,8 @@ exports.signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create the user
-    let approved = "";
-    approved = accountType === "Instructor" ? false : true;
+    let approved = '';
+    approved = accountType === 'Instructor' ? false : true;
 
     const user = await User.create({
       firstName,
@@ -136,13 +136,13 @@ exports.signup = async (req, res) => {
     return res.status(200).json({
       success: true,
       user,
-      message: "User registered successfully",
+      message: 'User registered successfully',
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: "User cannot be registered. Please try again.",
+      message: 'User cannot be registered. Please try again.',
     });
   }
 };
@@ -156,13 +156,13 @@ exports.login = async (req, res) => {
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Email is required",
+        message: 'Email is required',
       });
     }
     if (!password) {
       return res.status(400).json({
         success: false,
-        message: "Password is required",
+        message: 'Password is required',
       });
     }
 
@@ -171,7 +171,7 @@ exports.login = async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid email or password. Please check your credentials and try again.",
+        message: 'Invalid email or password. Please check your credentials and try again.',
       });
     }
 
@@ -182,7 +182,7 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password. Please check your credentials and try again.",
+        message: 'Invalid email or password. Please check your credentials and try again.',
       });
     }
 
@@ -192,8 +192,8 @@ exports.login = async (req, res) => {
         { email: user.email, id: user._id, accountType: user.accountType },
         process.env.JWT_SECRET,
         {
-          expiresIn: "24h",
-        }
+          expiresIn: '24h',
+        },
       );
 
       // Save token to user document in database
@@ -204,23 +204,23 @@ exports.login = async (req, res) => {
         expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         httpOnly: true,
       };
-      res.cookie("token", token, options).status(200).json({
+      res.cookie('token', token, options).status(200).json({
         success: true,
         token,
         user,
-        message: `User Login Success`,
+        message: 'User Login Success',
       });
     } else {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password. Please check your credentials and try again.",
+        message: 'Invalid email or password. Please check your credentials and try again.',
       });
     }
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: `Login Failure Please Try Again`,
+      message: 'Login Failure Please Try Again',
     });
   }
 };
@@ -238,7 +238,7 @@ exports.sendotp = async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid email or password. Please check your credentials and try again.",
+        message: 'Invalid email or password. Please check your credentials and try again.',
       });
     }
 
@@ -247,19 +247,19 @@ exports.sendotp = async (req, res) => {
     if (checkUserPresent && existingUser) {
       return res.status(409).json({
         success: false,
-        message: "An account with this email already exists. Please sign in instead.",
+        message: 'An account with this email already exists. Please sign in instead.',
       });
     }
 
-    var otp = otpGenerator.generate(6, {
+    let otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
     });
     const result = await OTP.findOne({ otp: otp });
-    console.log("Result is Generate OTP Func");
-    console.log("OTP", otp);
-    console.log("Result", result);
+    console.log('Result is Generate OTP Func');
+    console.log('OTP', otp);
+    console.log('Result', result);
     while (result) {
       otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
@@ -270,18 +270,18 @@ exports.sendotp = async (req, res) => {
     }
     const otpPayload = { email, otp };
     const otpBody = await OTP.create(otpPayload);
-    console.log("OTP Body", otpBody);
+    console.log('OTP Body', otpBody);
     res.status(200).json({
       success: true,
-      message: `OTP Sent Successfully`,
+      message: 'OTP Sent Successfully',
       otp,
     });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ 
       success: false, 
-      message: "Failed to send OTP. Please try again later.",
-      error: error.message 
+      message: 'Failed to send OTP. Please try again later.',
+      error: error.message, 
     });
   }
 };
@@ -296,19 +296,19 @@ exports.getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: 'User not found',
       });
     }
 
     res.status(200).json({
       success: true,
-      user
+      user,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: 'Error fetching user'
+      message: 'Error fetching user',
     });
   }
 };
@@ -325,19 +325,19 @@ exports.changePassword = async (req, res) => {
     // Validate old password
     const isPasswordMatch = await bcrypt.compare(
       oldPassword,
-      userDetails.password
+      userDetails.password,
     );
     if (!isPasswordMatch) {
       return res
         .status(401)
-        .json({ success: false, message: "The password is incorrect" });
+        .json({ success: false, message: 'The password is incorrect' });
     }
 
     // Match new password and confirm new password
     if (newPassword !== confirmNewPassword) {
       return res.status(400).json({
         success: false,
-        message: "The password and confirm password does not match",
+        message: 'The password and confirm password does not match',
       });
     }
 
@@ -346,7 +346,7 @@ exports.changePassword = async (req, res) => {
     const updatedUserDetails = await User.findByIdAndUpdate(
       req.user.id,
       { password: encryptedPassword },
-      { new: true }
+      { new: true },
     );
 
     // Send notification email
@@ -355,15 +355,15 @@ exports.changePassword = async (req, res) => {
         updatedUserDetails.email,
         passwordUpdated(
           updatedUserDetails.email,
-          `Password updated successfully for ${updatedUserDetails.firstName} ${updatedUserDetails.lastName}`
-        )
+          `Password updated successfully for ${updatedUserDetails.firstName} ${updatedUserDetails.lastName}`,
+        ),
       );
-      console.log("Email sent successfully:", emailResponse.response);
+      console.log('Email sent successfully:', emailResponse.response);
     } catch (error) {
-      console.error("Error occurred while sending email:", error);
+      console.error('Error occurred while sending email:', error);
       return res.status(500).json({
         success: false,
-        message: "Error occurred while sending email",
+        message: 'Error occurred while sending email',
         error: error.message,
       });
     }
@@ -371,12 +371,12 @@ exports.changePassword = async (req, res) => {
     // Return success response
     return res
       .status(200)
-      .json({ success: true, message: "Password updated successfully" });
+      .json({ success: true, message: 'Password updated successfully' });
   } catch (error) {
-    console.error("Error occurred while updating password:", error);
+    console.error('Error occurred while updating password:', error);
     return res.status(500).json({
       success: false,
-      message: "Error occurred while updating password",
+      message: 'Error occurred while updating password',
       error: error.message,
     });
   }

@@ -42,10 +42,8 @@ describe('Course Controller', () => {
       const mockCourse = { _id: 'courseId', ...req.body, instructor: 'instructorId' };
 
       Category.findById.mockResolvedValue(mockCategory);
-      User.findById.mockResolvedValue(mockInstructor);
       Course.prototype.save = jest.fn().mockResolvedValue(mockCourse);
       Category.findByIdAndUpdate.mockResolvedValue(mockCategory);
-      User.findByIdAndUpdate.mockResolvedValue(mockInstructor);
 
       await createCourse(req, res);
 

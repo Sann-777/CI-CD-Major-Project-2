@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   uploadImage,
-  uploadVideo
+  uploadVideo,
 } = require('../controllers/mediaController');
 const { auth } = require('../middleware/auth');
 

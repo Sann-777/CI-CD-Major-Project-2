@@ -5,29 +5,24 @@
   "private": true,
   "scripts": {
     "bootstrap": "npm install && cd frontend-microservice && npm install && cd ../microservices && npm run install:all",
-    
     "install:all": "npm run install:frontend && npm run install:services:all",
     "install:frontend": "cd frontend-microservice && npm install",
     "install:services:all": "cd microservices && npm install",
     "install:service": "cd microservices/$npm_config_service && npm install",
-    
     "dev:all": "npx concurrently -n \"frontend,gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgBlue,bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"npm run dev:frontend\" \"npm run dev:service --service=api-gateway\" \"npm run dev:service --service=auth-service\" \"npm run dev:service --service=course-service\" \"npm run dev:service --service=payment-service\" \"npm run dev:service --service=profile-service\" \"npm run dev:service --service=rating-service\" \"npm run dev:service --service=media-service\" \"npm run dev:service --service=notification-service\"",
     "dev:frontend": "cd frontend-microservice && npm run dev",
     "dev:services": "cd microservices && npm run dev:all",
     "dev:service": "cd microservices/$npm_config_service && npm run dev",
-    
     "build:all": "npm run build:frontend && npm run build:services",
     "build:frontend": "cd frontend-microservice && npm run build",
     "build:services": "cd microservices && npm run build:all",
     "build:service": "cd microservices/$npm_config_service && npm run build",
-    
     "test:all": "npm run test:frontend && npm run test:services:ready",
     "test:frontend": "cd frontend-microservice && npm test",
     "test:services:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd microservices/api-gateway && npm test\" \"cd microservices/auth-service && npm test\" \"cd microservices/course-service && npm test\" \"cd microservices/payment-service && npm test\" \"cd microservices/profile-service && npm test\" \"cd microservices/rating-service && npm test\" \"cd microservices/media-service && npm test\" \"cd microservices/notification-service && npm test\"",
     "test:services:ready": "npx concurrently -n \"gateway,auth,course,profile,rating,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgBlueBright\" \"cd microservices/api-gateway && npm test\" \"cd microservices/auth-service && npm test\" \"cd microservices/course-service && npm test\" \"cd microservices/profile-service && npm test\" \"cd microservices/rating-service && npm test\" \"cd microservices/notification-service && npm test\"",
     "test:service": "cd microservices/$npm_config_service && npm test",
     "test:coverage": "jest --coverage",
-    
     "lint:all": "npm run lint:frontend && npm run lint:services:ready",
     "lint:frontend": "cd frontend-microservice && npm run lint",
     "lint:services:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd microservices/api-gateway && npm run lint\" \"cd microservices/auth-service && npm run lint\" \"cd microservices/course-service && npm run lint\" \"cd microservices/payment-service && npm run lint\" \"cd microservices/profile-service && npm run lint\" \"cd microservices/rating-service && npm run lint\" \"cd microservices/media-service && npm run lint\" \"cd microservices/notification-service && npm run lint\"",
@@ -36,28 +31,22 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    
     "start:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd microservices/api-gateway && npm start\" \"cd microservices/auth-service && npm start\" \"cd microservices/course-service && npm start\" \"cd microservices/payment-service && npm start\" \"cd microservices/profile-service && npm start\" \"cd microservices/rating-service && npm start\" \"cd microservices/media-service && npm start\" \"cd microservices/notification-service && npm start\"",
     "start:service": "cd microservices/$npm_config_service && npm start",
-    
     "docker:build": "docker-compose -f microservices/docker-compose.yml build",
     "docker:up": "docker-compose -f microservices/docker-compose.yml up -d",
     "docker:down": "docker-compose -f microservices/docker-compose.yml down",
     "docker:logs": "docker-compose -f microservices/docker-compose.yml logs -f",
-    
     "k8s:deploy": "kubectl apply -f microservices/k8s/",
     "k8s:delete": "kubectl delete -f microservices/k8s/",
     "k8s:status": "kubectl get all -n studynotion",
-    
     "legacy:start": "cd monolithic-legacy && npm start",
     "legacy:server": "cd monolithic-legacy/server && npm run dev",
     "legacy:dev": "cd monolithic-legacy && npm run dev",
-    
     "clean:all": "npm run clean:frontend && npm run clean:services",
     "clean:frontend": "cd frontend-microservice && rm -rf node_modules package-lock.json && npm cache clean --force",
     "clean:services": "cd microservices && find . -name \"node_modules\" -type d -prune -exec rm -rf '{}' + && rm -f package-lock.json && npm cache clean --force",
     "reset:all": "npm run clean:all && npm run install:all",
-    
     "health:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"curl -f http://localhost:3001/health || echo 'Gateway down'\" \"curl -f http://localhost:3002/health || echo 'Auth down'\" \"curl -f http://localhost:3003/health || echo 'Course down'\" \"curl -f http://localhost:3004/health || echo 'Payment down'\" \"curl -f http://localhost:3005/health || echo 'Profile down'\" \"curl -f http://localhost:3006/health || echo 'Rating down'\" \"curl -f http://localhost:3007/health || echo 'Media down'\" \"curl -f http://localhost:3008/health || echo 'Notification down'\""
   },
   "devDependencies": {
@@ -65,10 +54,10 @@
     "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
     "eslint-plugin-node": "^11.1.0",
-    "prettier": "^3.0.0",
     "jest": "^29.7.0",
-    "supertest": "^6.3.3",
-    "mongodb-memory-server": "^9.1.1"
+    "mongodb-memory-server": "^9.1.1",
+    "prettier": "^3.0.0",
+    "supertest": "^6.3.3"
   },
   "engines": {
     "node": ">=18.0.0",
