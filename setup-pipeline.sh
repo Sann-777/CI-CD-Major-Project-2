@@ -156,9 +156,11 @@ echo "  npm run test:services:ready    # Run all tests (never fails pipeline)"
 echo "  npm run lint:services:ready    # Run all linting (never fails pipeline)"
 echo "  npm run ci:full                # Complete CI pipeline (always succeeds)"
 echo "================================================"
-echo "📝 Note: Tests and linting will show results but won't break the pipeline"
-echo "   This ensures DevOps pipeline stability while showing developer feedback"
-echo "================================================"
 
 # Return to original directory
 cd "$PROJECT_ROOT"
+
+echo "📦 Installing Gitleaks..."
+curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz \
+  | tar -xz -C /usr/local/bin gitleaks
+echo "✅ Gitleaks installed: $(gitleaks version)"
