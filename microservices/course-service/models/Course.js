@@ -4,11 +4,11 @@ const courseSchema = new mongoose.Schema({
   courseName: { 
     type: String,
     required: true,
-    trim: true,
+    trim: true
   },
   courseDescription: { 
     type: String,
-    required: true,
+    required: true
   },
   instructor: {
     type: String, // User ID from auth service
@@ -20,7 +20,7 @@ const courseSchema = new mongoose.Schema({
   courseContent: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Section',
+      ref: "Section",
     },
   ],
   ratingAndReviews: [
@@ -30,7 +30,7 @@ const courseSchema = new mongoose.Schema({
   ],
   price: {
     type: Number,
-    required: true,
+    required: true
   },
   thumbnail: {
     type: String,
@@ -41,7 +41,7 @@ const courseSchema = new mongoose.Schema({
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
+    ref: "Category",
   },
   studentsEnroled: [
     {
@@ -53,17 +53,17 @@ const courseSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Draft', 'Published'],
-    default: 'Draft',
+    enum: ["Draft", "Published"],
+    default: "Draft"
   },
   createdAt: { 
     type: Date, 
-    default: Date.now, 
+    default: Date.now 
   },
   updatedAt: { 
     type: Date, 
-    default: Date.now, 
-  },
+    default: Date.now 
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Course', courseSchema);

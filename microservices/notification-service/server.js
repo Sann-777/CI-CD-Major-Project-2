@@ -16,14 +16,14 @@ app.use(helmet());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 100 // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
 
 // CORS configuration
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3008',
-  credentials: true,
+  credentials: true
 }));
 
 // Body parsing middleware
@@ -39,7 +39,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({
     service: 'notification-service',
     status: 'healthy',
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -50,7 +50,7 @@ app.use(errorHandler);
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found',
+    message: 'Route not found'
   });
 });
 

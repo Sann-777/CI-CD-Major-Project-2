@@ -18,14 +18,14 @@ app.use(helmet());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 100 // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
 
 // CORS configuration
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3008',
-  credentials: true,
+  credentials: true
 }));
 
 // Body parsing middleware
@@ -38,14 +38,14 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/studynoti
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-  .then(() => {
-    console.log('Auth Service: Connected to MongoDB');
-    console.log('Database:', mongoose.connection.db.databaseName);
-  })
-  .catch(err => {
-    console.error('Auth Service: MongoDB connection error:', err);
-    process.exit(1);
-  });
+.then(() => {
+  console.log('Auth Service: Connected to MongoDB');
+  console.log('Database:', mongoose.connection.db.databaseName);
+})
+.catch(err => {
+  console.error('Auth Service: MongoDB connection error:', err);
+  process.exit(1);
+});
 
 // Routes
 app.use('/api/v1/auth', authRoutes);
@@ -55,7 +55,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({
     service: 'auth-service',
     status: 'healthy',
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -66,7 +66,7 @@ app.use(errorHandler);
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found',
+    message: 'Route not found'
   });
 });
 

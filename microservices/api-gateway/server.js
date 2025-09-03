@@ -14,14 +14,14 @@ app.use(helmet());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // limit each IP to 1000 requests per windowMs
+  max: 1000 // limit each IP to 1000 requests per windowMs
 });
 app.use(limiter);
 
 // CORS configuration
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3008',
-  credentials: true,
+  credentials: true
 }));
 
 // Body parsing middleware
@@ -36,7 +36,7 @@ const services = {
   profile: process.env.PROFILE_SERVICE_URL || 'http://localhost:3004',
   rating: process.env.RATING_SERVICE_URL || 'http://localhost:3007',
   notification: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3006',
-  media: process.env.MEDIA_SERVICE_URL || 'http://localhost:3005',
+  media: process.env.MEDIA_SERVICE_URL || 'http://localhost:3005'
 };
 
 // Proxy configuration
@@ -51,7 +51,7 @@ const createProxy = (target) => createProxyMiddleware({
       res.status(503).json({
         success: false,
         message: 'Service temporarily unavailable',
-        error: 'PROXY_ERROR',
+        error: 'PROXY_ERROR'
       });
     }
   },
@@ -71,7 +71,7 @@ const createProxy = (target) => createProxyMiddleware({
   },
   onProxyRes: (proxyRes, req, res) => {
     console.log(`Response from ${req.url}: ${proxyRes.statusCode}`);
-  },
+  }
 });
 
 // Route proxying
@@ -94,7 +94,7 @@ app.get('/health', async (req, res) => {
     try {
       const axios = require('axios');
       const response = await axios.get(`${serviceUrl}/health`, { 
-        timeout: 5000, 
+        timeout: 5000 
       });
       healthChecks[serviceName] = response.status === 200 ? 'healthy' : 'unhealthy';
     } catch (error) {
@@ -108,7 +108,7 @@ app.get('/health', async (req, res) => {
     service: 'api-gateway',
     status: allHealthy ? 'healthy' : 'degraded',
     timestamp: new Date().toISOString(),
-    services: healthChecks,
+    services: healthChecks
   });
 });
 
@@ -119,8 +119,8 @@ app.get('/api/services', (req, res) => {
     services: Object.keys(services).map(name => ({
       name,
       url: services[name],
-      endpoints: getServiceEndpoints(name),
-    })),
+      endpoints: getServiceEndpoints(name)
+    }))
   });
 });
 
@@ -133,7 +133,7 @@ function getServiceEndpoints(serviceName) {
       'POST /api/v1/auth/sendotp',
       'POST /api/v1/auth/changepassword',
       'POST /api/v1/auth/reset-password-token',
-      'POST /api/v1/auth/reset-password',
+      'POST /api/v1/auth/reset-password'
     ],
     course: [
       'POST /api/v1/course/createCourse',
@@ -143,31 +143,31 @@ function getServiceEndpoints(serviceName) {
       'POST /api/v1/course/addSection',
       'POST /api/v1/course/addSubSection',
       'GET /api/v1/category/showAllCategories',
-      'POST /api/v1/category/createCategory',
+      'POST /api/v1/category/createCategory'
     ],
     payment: [
       'POST /api/v1/payment/capturePayment',
       'POST /api/v1/payment/verifyPayment',
-      'GET /api/v1/payment/paymentHistory',
+      'GET /api/v1/payment/paymentHistory'
     ],
     profile: [
       'GET /api/v1/profile/getUserDetails',
       'POST /api/v1/profile/updateProfile',
-      'GET /api/v1/profile/getEnrolledCourses',
+      'GET /api/v1/profile/getEnrolledCourses'
     ],
     rating: [
       'POST /api/v1/rating/createRating',
       'GET /api/v1/rating/getAverageRating',
-      'GET /api/v1/rating/getReviews',
+      'GET /api/v1/rating/getReviews'
     ],
     notification: [
       'POST /api/v1/notification/contact',
-      'POST /api/v1/reach/contact',
+      'POST /api/v1/reach/contact'
     ],
     media: [
       'POST /api/v1/media/upload',
-      'POST /api/v1/media/upload-video',
-    ],
+      'POST /api/v1/media/upload-video'
+    ]
   };
   
   return endpoints[serviceName] || [];
@@ -179,7 +179,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     message: 'Internal gateway error',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
 });
 
@@ -196,8 +196,8 @@ app.use('*', (req, res) => {
       '/api/v1/profile/*',
       '/api/v1/rating/*',
       '/api/v1/notification/*',
-      '/api/v1/media/*',
-    ],
+      '/api/v1/media/*'
+    ]
   });
 });
 

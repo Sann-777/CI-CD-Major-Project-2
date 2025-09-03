@@ -105,7 +105,7 @@ describe('API Gateway', () => {
         expect.objectContaining({
           target: 'http://localhost:3001',
           changeOrigin: true,
-        }),
+        })
       );
     });
 
@@ -119,7 +119,7 @@ describe('API Gateway', () => {
         expect.objectContaining({
           target: 'http://localhost:3003',
           changeOrigin: true,
-        }),
+        })
       );
     });
 
@@ -133,7 +133,7 @@ describe('API Gateway', () => {
         expect.objectContaining({
           target: 'http://localhost:3005',
           changeOrigin: true,
-        }),
+        })
       );
     });
 
@@ -153,7 +153,7 @@ describe('API Gateway', () => {
         expect.objectContaining({
           target: 'http://localhost:3006',
           changeOrigin: true,
-        }),
+        })
       );
     });
   });

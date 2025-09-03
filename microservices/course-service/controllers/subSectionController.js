@@ -11,7 +11,7 @@ exports.createSubSection = async (req, res) => {
     if (!sectionId || !title || !description || !video) {
       return res
         .status(404)
-        .json({ success: false, message: 'All Fields are Required' });
+        .json({ success: false, message: "All Fields are Required" });
     }
 
     // Upload video to media service
@@ -20,13 +20,13 @@ exports.createSubSection = async (req, res) => {
       const mediaResponse = await axios.post(
         `${process.env.MEDIA_SERVICE_URL}/api/v1/media/upload-video`,
         { file: video },
-        { headers: { Authorization: req.headers.authorization } },
+        { headers: { Authorization: req.headers.authorization } }
       );
       uploadDetails = mediaResponse.data;
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: 'Failed to upload video',
+        message: "Failed to upload video",
       });
     }
 
@@ -40,18 +40,18 @@ exports.createSubSection = async (req, res) => {
     const updatedSection = await Section.findByIdAndUpdate(
       { _id: sectionId },
       { $push: { subSection: SubSectionDetails._id } },
-      { new: true },
-    ).populate('subSection');
+      { new: true }
+    ).populate("subSection");
 
     return res.status(200).json({
       success: true,
       data: updatedSection,
     });
   } catch (error) {
-    console.error('Error creating new sub-section:', error);
+    console.error("Error creating new sub-section:", error);
     return res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: "Internal server error",
       error: error.message,
     });
   }
@@ -66,7 +66,7 @@ exports.updateSubSection = async (req, res) => {
     if (!subSection) {
       return res.status(404).json({
         success: false,
-        message: 'SubSection not found',
+        message: "SubSection not found",
       });
     }
 
@@ -84,14 +84,14 @@ exports.updateSubSection = async (req, res) => {
         const mediaResponse = await axios.post(
           `${process.env.MEDIA_SERVICE_URL}/api/v1/media/upload-video`,
           { file: video },
-          { headers: { Authorization: req.headers.authorization } },
+          { headers: { Authorization: req.headers.authorization } }
         );
         subSection.videoUrl = mediaResponse.data.secure_url;
         subSection.timeDuration = `${mediaResponse.data.duration}`;
       } catch (error) {
         return res.status(500).json({
           success: false,
-          message: 'Failed to upload video',
+          message: "Failed to upload video",
         });
       }
     }
@@ -99,19 +99,19 @@ exports.updateSubSection = async (req, res) => {
     await subSection.save();
 
     const updatedSection = await Section.findById(sectionId).populate(
-      'subSection',
+      "subSection"
     );
 
     return res.json({
       success: true,
-      message: 'Section updated successfully',
+      message: "Section updated successfully",
       data: updatedSection,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: 'An error occurred while updating the section',
+      message: "An error occurred while updating the section",
     });
   }
 };
@@ -126,7 +126,7 @@ exports.deleteSubSection = async (req, res) => {
         $pull: {
           subSection: subSectionId,
         },
-      },
+      }
     );
     const subSection = await SubSection.findByIdAndDelete({
       _id: subSectionId,
@@ -135,23 +135,23 @@ exports.deleteSubSection = async (req, res) => {
     if (!subSection) {
       return res
         .status(404)
-        .json({ success: false, message: 'SubSection not found' });
+        .json({ success: false, message: "SubSection not found" });
     }
 
     const updatedSection = await Section.findById(sectionId).populate(
-      'subSection',
+      "subSection"
     );
 
     return res.json({
       success: true,
-      message: 'SubSection deleted successfully',
+      message: "SubSection deleted successfully",
       data: updatedSection,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: 'An error occurred while deleting the SubSection',
+      message: "An error occurred while deleting the SubSection",
     });
   }
 };

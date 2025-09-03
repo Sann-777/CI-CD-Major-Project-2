@@ -26,7 +26,7 @@ describe('Rating Controller', () => {
 
       await createRating(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.status).toHaveBeenCalledWith(500);
     });
 
     it('should handle errors gracefully', async () => {

@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const OTP = require('../models/OTP');
-const { signup, login, sendotp, changePassword } = require('../controllers/authController');
+const { signup, login, sendOTP, changePassword } = require('../controllers/authController');
 
 // Mock dependencies
 jest.mock('../models/User');
@@ -36,13 +36,12 @@ describe('Auth Controller', () => {
       OTP.findOne.mockResolvedValue(null);
       OTP.prototype.save = jest.fn().mockResolvedValue(true);
 
-      await sendotp(req, res);
+      await sendOTP(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         success: true,
-        message: 'OTP Sent Successfully',
-        otp: expect.any(String),
+        message: 'OTP sent successfully',
       });
     });
 
@@ -51,7 +50,7 @@ describe('Auth Controller', () => {
       
       User.findOne.mockResolvedValue({ email: 'existing@example.com' });
 
-      await sendotp(req, res);
+      await sendOTP(req, res);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -63,9 +62,9 @@ describe('Auth Controller', () => {
     it('should handle missing email', async () => {
       req.body = {};
 
-      await sendotp(req, res);
+      await sendOTP(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(403);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
         message: 'All fields are required',
@@ -88,7 +87,7 @@ describe('Auth Controller', () => {
       OTP.find.mockResolvedValue([{ otp: '123456' }]);
       User.findOne.mockResolvedValue(null);
       bcrypt.hash.mockResolvedValue('hashedPassword');
-      // Profile creation is handled internally by signup
+      Profile.prototype.save = jest.fn().mockResolvedValue({ _id: 'profileId' });
       User.prototype.save = jest.fn().mockResolvedValue({ _id: 'userId' });
 
       await signup(req, res);
@@ -117,7 +116,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Password and confirm password do not match. Please try again.',
+        message: 'Password and Confirm Password do not match',
       });
     });
 
@@ -136,10 +135,10 @@ describe('Auth Controller', () => {
 
       await signup(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'User cannot be registered. Please try again.',
+        message: 'The OTP is not valid',
       });
     });
   });
@@ -176,7 +175,7 @@ describe('Auth Controller', () => {
         success: true,
         token: 'mockToken',
         user: expect.any(Object),
-        message: 'User Login Success',
+        message: 'User login success',
       });
     });
 
@@ -192,12 +191,10 @@ describe('Auth Controller', () => {
 
       await login(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
-        success: true,
-        token: 'mockToken',
-        user: expect.any(Object),
-        message: 'User Login Success',
+        success: false,
+        message: 'User is not registered with us. Please sign up to continue',
       });
     });
 
@@ -222,7 +219,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Invalid email or password. Please check your credentials and try again.',
+        message: 'Password is incorrect',
       });
     });
   });
@@ -247,8 +244,8 @@ describe('Auth Controller', () => {
 
       await changePassword(req, res);
 
-      // Password change is handled internally
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(mockUser.save).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         success: true,
         message: 'Password updated successfully',

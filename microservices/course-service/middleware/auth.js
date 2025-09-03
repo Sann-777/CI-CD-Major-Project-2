@@ -11,7 +11,7 @@ exports.auth = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({ 
         success: false, 
-        message: 'Token Missing', 
+        message: 'Token Missing' 
       });
     }
 
@@ -22,7 +22,7 @@ exports.auth = async (req, res, next) => {
     } catch (error) {
       return res.status(401).json({ 
         success: false, 
-        message: 'Token is invalid', 
+        message: 'Token is invalid' 
       });
     }
     
@@ -30,7 +30,7 @@ exports.auth = async (req, res, next) => {
   } catch (error) {
     return res.status(401).json({
       success: false,
-      message: 'Something Went Wrong While Validating the Token',
+      message: `Something Went Wrong While Validating the Token`,
     });
   }
 };
@@ -50,7 +50,7 @@ exports.isStudent = async (req, res, next) => {
   } catch (error) {
     return res.status(500).json({ 
       success: false, 
-      message: 'User Role Can\'t be Verified', 
+      message: `User Role Can't be Verified` 
     });
   }
 };
@@ -70,7 +70,7 @@ exports.isInstructor = async (req, res, next) => {
   } catch (error) {
     return res.status(500).json({ 
       success: false, 
-      message: 'User Role Can\'t be Verified', 
+      message: `User Role Can't be Verified` 
     });
   }
 };
@@ -90,7 +90,7 @@ exports.isAdmin = async (req, res, next) => {
   } catch (error) {
     return res.status(500).json({ 
       success: false, 
-      message: 'User Role Can\'t be Verified', 
+      message: `User Role Can't be Verified` 
     });
   }
 };

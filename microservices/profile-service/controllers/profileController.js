@@ -18,7 +18,7 @@ exports.getUserDetails = async (req, res) => {
       email: req.user.email || '',
       accountType: req.user.accountType || 'Student',
       additionalDetails: null,
-      image: req.user.image || `https://api.dicebear.com/5.x/initials/svg?seed=${req.user.firstName || 'User'}`,
+      image: req.user.image || `https://api.dicebear.com/5.x/initials/svg?seed=${req.user.firstName || 'User'}`
     };
 
     res.status(200).json({
@@ -43,17 +43,17 @@ exports.updateProfile = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array(),
+        errors: errors.array()
       });
     }
 
     const {
-      firstName = '',
-      lastName = '',
-      dateOfBirth = '',
-      about = '',
-      contactNumber = '',
-      gender = '',
+      firstName = "",
+      lastName = "",
+      dateOfBirth = "",
+      about = "",
+      contactNumber = "",
+      gender = "",
     } = req.body;
     const id = req.user.id;
 
@@ -114,16 +114,16 @@ exports.getEnrolledCourses = async (req, res) => {
       .exec();
 
     userDetails = userDetails.toObject();
-    let SubsectionLength = 0;
-    for (let i = 0; i < userDetails.courses.length; i++) {
+    var SubsectionLength = 0;
+    for (var i = 0; i < userDetails.courses.length; i++) {
       let totalDurationInSeconds = 0;
       SubsectionLength = 0;
-      for (let j = 0; j < userDetails.courses[i].courseContent.length; j++) {
+      for (var j = 0; j < userDetails.courses[i].courseContent.length; j++) {
         totalDurationInSeconds += userDetails.courses[i].courseContent[
           j
         ].subSection.reduce((acc, curr) => acc + parseInt(curr.timeDuration), 0);
         userDetails.courses[i].totalDuration = convertSecondsToDuration(
-          totalDurationInSeconds,
+          totalDurationInSeconds
         );
         SubsectionLength +=
           userDetails.courses[i].courseContent[j].subSection.length;
@@ -140,7 +140,7 @@ exports.getEnrolledCourses = async (req, res) => {
         const multiplier = Math.pow(10, 2);
         userDetails.courses[i].progressPercentage =
           Math.round(
-            (courseProgressCount / SubsectionLength) * 100 * multiplier,
+            (courseProgressCount / SubsectionLength) * 100 * multiplier
           ) / multiplier;
       }
     }
@@ -172,17 +172,17 @@ exports.updateDisplayPicture = async (req, res) => {
       displayPicture,
       process.env.FOLDER_NAME,
       1000,
-      1000,
+      1000
     );
     console.log(image);
     const updatedProfile = await User.findByIdAndUpdate(
       { _id: userId },
       { image: image.secure_url },
-      { new: true },
+      { new: true }
     );
     res.send({
       success: true,
-      message: 'Image Updated successfully',
+      message: `Image Updated successfully`,
       data: updatedProfile,
     });
   } catch (error) {

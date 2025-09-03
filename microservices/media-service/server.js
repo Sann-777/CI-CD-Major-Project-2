@@ -21,14 +21,14 @@ app.use(helmet());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 50, // Lower limit for file uploads
+  max: 50 // Lower limit for file uploads
 });
 app.use(limiter);
 
 // CORS configuration
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3008',
-  credentials: true,
+  credentials: true
 }));
 
 // File upload middleware
@@ -50,7 +50,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({
     service: 'media-service',
     status: 'healthy',
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -61,7 +61,7 @@ app.use(errorHandler);
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found',
+    message: 'Route not found'
   });
 });
 

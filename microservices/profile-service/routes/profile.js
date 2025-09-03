@@ -7,7 +7,7 @@ const {
   getEnrolledCourses,
   updateDisplayPicture,
   deleteProfile,
-  instructorDashboard,
+  instructorDashboard
 } = require('../controllers/profileController');
 const { auth } = require('../middleware/auth');
 const upload = require('../middleware/upload');
@@ -19,7 +19,7 @@ router.put('/updateProfile', auth, [
   body('lastName').optional().trim().isLength({ min: 1 }),
   body('dateOfBirth').optional().isISO8601(),
   body('about').optional().trim(),
-  body('contactNumber').optional().isMobilePhone(),
+  body('contactNumber').optional().isMobilePhone()
 ], updateProfile);
 
 router.get('/getEnrolledCourses', auth, getEnrolledCourses);

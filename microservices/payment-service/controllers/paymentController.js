@@ -9,7 +9,7 @@ exports.capturePayment = async (req, res) => {
   const userId = req.user.id;
 
   if (courses.length === 0) {
-    return res.json({ success: false, message: 'Please Provide Course ID' });
+    return res.json({ success: false, message: "Please Provide Course ID" });
   }
 
   let total_amount = 0;
@@ -21,7 +21,7 @@ exports.capturePayment = async (req, res) => {
       const courseResponse = await axios.post(
         `${process.env.COURSE_SERVICE_URL}/api/v1/course/getCourseDetails`,
         { courseId: course_id },
-        { headers: { Authorization: req.headers.authorization } },
+        { headers: { Authorization: req.headers.authorization } }
       );
       course = courseResponse.data.data.courseDetails;
 
@@ -30,7 +30,7 @@ exports.capturePayment = async (req, res) => {
       if (course.studentsEnroled.includes(uid)) {
         return res
           .status(200)
-          .json({ success: false, message: 'Student is already Enrolled' });
+          .json({ success: false, message: "Student is already Enrolled" });
       }
 
       total_amount += course.price;
@@ -42,7 +42,7 @@ exports.capturePayment = async (req, res) => {
 
   const options = {
     amount: total_amount * 100,
-    currency: 'INR',
+    currency: "INR",
     receipt: Math.random(Date.now()).toString(),
   };
 
@@ -58,7 +58,7 @@ exports.capturePayment = async (req, res) => {
     console.log(error);
     res
       .status(500)
-      .json({ success: false, message: 'Could not initiate order.' });
+      .json({ success: false, message: "Could not initiate order." });
   }
 };
 
@@ -74,15 +74,15 @@ exports.verifyPayment = async (req, res) => {
     !courses ||
     !userId
   ) {
-    return res.status(400).json({ success: false, message: 'Payment Failed' });
+    return res.status(400).json({ success: false, message: "Payment Failed" });
   }
 
-  const body = razorpay_order_id + '|' + razorpay_payment_id;
+  let body = razorpay_order_id + "|" + razorpay_payment_id;
 
   const expectedSignature = crypto
-    .createHmac('sha256', process.env.RAZORPAY_SECRET)
+    .createHmac("sha256", process.env.RAZORPAY_SECRET)
     .update(body.toString())
-    .digest('hex');
+    .digest("hex");
 
   if (expectedSignature === razorpay_signature) {
     try {
@@ -95,7 +95,7 @@ exports.verifyPayment = async (req, res) => {
           courseId,
           userId,
           amount: 0, // Will be updated with actual amount
-          status: 'completed',
+          status: 'completed'
         });
         await payment.save();
 
@@ -103,13 +103,13 @@ exports.verifyPayment = async (req, res) => {
         await enrollStudents(courses, userId, res);
       }
 
-      return res.status(200).json({ success: true, message: 'Payment Verified' });
+      return res.status(200).json({ success: true, message: "Payment Verified" });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ success: false, message: 'Payment verification failed' });
+      return res.status(500).json({ success: false, message: "Payment verification failed" });
     }
   } else {
-    return res.status(400).json({ success: false, message: 'Payment Failed' });
+    return res.status(400).json({ success: false, message: "Payment Failed" });
   }
 };
 
@@ -121,14 +121,14 @@ exports.sendPaymentSuccessEmail = async (req, res) => {
   if (!orderId || !paymentId || !amount || !userId) {
     return res
       .status(400)
-      .json({ success: false, message: 'Please provide all the details' });
+      .json({ success: false, message: "Please provide all the details" });
   }
 
   try {
     // Get user details from auth service
     const userResponse = await axios.get(
       `${process.env.AUTH_SERVICE_URL}/api/v1/auth/user/${userId}`,
-      { headers: { Authorization: req.headers.authorization } },
+      { headers: { Authorization: req.headers.authorization } }
     );
     const user = userResponse.data.user;
 
@@ -142,15 +142,15 @@ exports.sendPaymentSuccessEmail = async (req, res) => {
         orderId,
         paymentId,
       },
-      { headers: { Authorization: req.headers.authorization } },
+      { headers: { Authorization: req.headers.authorization } }
     );
 
-    res.json({ success: true, message: 'Payment success email sent' });
+    res.json({ success: true, message: "Payment success email sent" });
   } catch (error) {
-    console.log('error in sending mail', error);
+    console.log("error in sending mail", error);
     return res
       .status(400)
-      .json({ success: false, message: 'Could not send email' });
+      .json({ success: false, message: "Could not send email" });
   }
 };
 
@@ -159,7 +159,7 @@ const enrollStudents = async (courses, userId, res) => {
   if (!courses || !userId) {
     return res
       .status(400)
-      .json({ success: false, message: 'Please Provide Course ID and User ID' });
+      .json({ success: false, message: "Please Provide Course ID and User ID" });
   }
 
   for (const courseId of courses) {
@@ -168,21 +168,21 @@ const enrollStudents = async (courses, userId, res) => {
       await axios.post(
         `${process.env.COURSE_SERVICE_URL}/api/v1/course/enroll-student`,
         { courseId, userId },
-        { headers: { Authorization: req.headers.authorization } },
+        { headers: { Authorization: req.headers.authorization } }
       );
 
       // Find the student and add the course to their list of enrolled courses
       await axios.post(
         `${process.env.USER_SERVICE_URL}/api/v1/profile/enroll-course`,
         { userId, courseId },
-        { headers: { Authorization: req.headers.authorization } },
+        { headers: { Authorization: req.headers.authorization } }
       );
 
       // Send enrollment confirmation email
       await axios.post(
         `${process.env.NOTIFICATION_SERVICE_URL}/api/v1/notification/course-enrollment`,
         { userId, courseId },
-        { headers: { Authorization: req.headers.authorization } },
+        { headers: { Authorization: req.headers.authorization } }
       );
 
     } catch (error) {
@@ -206,7 +206,7 @@ exports.getPaymentHistory = async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch payment history',
+      message: "Failed to fetch payment history",
       error: error.message,
     });
   }
