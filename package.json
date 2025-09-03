@@ -15,7 +15,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "start:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd microservices/api-gateway && npm start\" \"cd microservices/auth-service && npm start\" \"cd microservices/course-service && npm start\" \"cd microservices/payment-service && npm start\" \"cd microservices/profile-service && npm start\" \"cd microservices/rating-service && npm start\" \"cd microservices/media-service && npm start\" \"cd microservices/notification-service && npm start\"",
+    "start:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd microservices/api-gateway && npm start\" \"cd microservices/auth-service && npm start\" \"cd microservices/course-service && npm start\" \"cd microservices/payment-service && npm start\" \"cd microservices/profile-service && npm start\" \"cd microservices/rating-service && npm start\" \"cd microservices/media-service && npm start\" \"cd microservices/notification-service && npm start\" \"cd frontend-microservice && npm run dev\"",
     "start:service": "cd microservices/$npm_config_service && npm start",
     
     "docker:build": "docker-compose -f microservices/docker-compose.yml build",
