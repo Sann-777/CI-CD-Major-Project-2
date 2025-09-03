@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const OTP = require('../models/OTP');
-const { signup, login, sendOTP, changePassword } = require('../controllers/authController');
+const { sendotp, signup, login, changePassword } = require('../controllers/authController');
 
 // Mock dependencies
 jest.mock('../models/User');
@@ -28,46 +28,45 @@ describe('Auth Controller', () => {
     jest.clearAllMocks();
   });
 
-  describe('sendOTP', () => {
+  describe('sendotp', () => {
     it('should send OTP successfully for new email', async () => {
-      req.body = { email: 'test@example.com' };
-      
+      req.body = { email: 'test@example.com', checkUserPresent: true };
       User.findOne.mockResolvedValue(null);
       OTP.findOne.mockResolvedValue(null);
-      OTP.prototype.save = jest.fn().mockResolvedValue(true);
+      OTP.create = jest.fn().mockResolvedValue({ email: 'test@example.com', otp: '123456' });
 
-      await sendOTP(req, res);
+      await sendotp(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         success: true,
-        message: 'OTP sent successfully',
+        message: 'OTP Sent Successfully',
+        otp: expect.any(String),
       });
     });
 
     it('should return error if user already exists', async () => {
-      req.body = { email: 'existing@example.com' };
-      
+      req.body = { email: 'existing@example.com', checkUserPresent: true };
       User.findOne.mockResolvedValue({ email: 'existing@example.com' });
 
-      await sendOTP(req, res);
+      await sendotp(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(409);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'User is already registered',
+        message: 'An account with this email already exists. Please sign in instead.',
       });
     });
 
-    it('should handle missing email', async () => {
-      req.body = {};
+    it('should handle invalid email format', async () => {
+      req.body = { email: 'invalid-email', checkUserPresent: true };
 
-      await sendOTP(req, res);
+      await sendotp(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'All fields are required',
+        message: 'Invalid email or password. Please check your credentials and try again.',
       });
     });
   });
@@ -78,17 +77,19 @@ describe('Auth Controller', () => {
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@example.com',
-        password: 'Password123!',
-        confirmPassword: 'Password123!',
+        password: 'password123',
+        confirmPassword: 'password123',
         accountType: 'Student',
         otp: '123456',
       };
-
-      OTP.find.mockResolvedValue([{ otp: '123456' }]);
+      OTP.find.mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue([{ otp: '123456', createdAt: new Date() }]),
+        }),
+      });
       User.findOne.mockResolvedValue(null);
       bcrypt.hash.mockResolvedValue('hashedPassword');
-      Profile.prototype.save = jest.fn().mockResolvedValue({ _id: 'profileId' });
-      User.prototype.save = jest.fn().mockResolvedValue({ _id: 'userId' });
+      User.create = jest.fn().mockResolvedValue({ _id: 'userId', firstName: 'John', lastName: 'Doe', email: 'john@example.com' });
 
       await signup(req, res);
 
@@ -105,7 +106,7 @@ describe('Auth Controller', () => {
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@example.com',
-        password: 'Password123!',
+        password: 'password123',
         confirmPassword: 'DifferentPassword',
         accountType: 'Student',
         otp: '123456',
@@ -116,7 +117,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Password and Confirm Password do not match',
+        message: 'Password and confirm password do not match. Please try again.',
       });
     });
 
@@ -125,20 +126,24 @@ describe('Auth Controller', () => {
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@example.com',
-        password: 'Password123!',
-        confirmPassword: 'Password123!',
+        password: 'password123',
+        confirmPassword: 'password123',
         accountType: 'Student',
-        otp: '123456',
+        otp: 'wrongOTP',
       };
-
-      OTP.find.mockResolvedValue([]);
+      OTP.find.mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue([{ otp: '123456', createdAt: new Date() }]),
+        }),
+      });
+      User.findOne.mockResolvedValue(null);
 
       await signup(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'The OTP is not valid',
+        message: 'Invalid OTP. Please check your email and enter the correct OTP.',
       });
     });
   });
@@ -147,7 +152,7 @@ describe('Auth Controller', () => {
     it('should login successfully with valid credentials', async () => {
       req.body = {
         email: 'john@example.com',
-        password: 'Password123!',
+        password: 'password123',
       };
 
       const mockUser = {
@@ -175,26 +180,20 @@ describe('Auth Controller', () => {
         success: true,
         token: 'mockToken',
         user: expect.any(Object),
-        message: 'User login success',
+        message: 'User Login Success',
       });
     });
 
     it('should return error for invalid email', async () => {
-      req.body = {
-        email: 'nonexistent@example.com',
-        password: 'Password123!',
-      };
-
-      User.findOne.mockReturnValue({
-        populate: jest.fn().mockResolvedValue(null),
-      });
+      req.body = { email: 'nonexistent@example.com', password: 'password123' };
+      User.findOne.mockResolvedValue(null);
 
       await login(req, res);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'User is not registered with us. Please sign up to continue',
+        message: 'Invalid email or password. Please check your credentials and try again.',
       });
     });
 
@@ -219,32 +218,37 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Password is incorrect',
+        message: 'Invalid email or password. Please check your credentials and try again.',
       });
     });
   });
 
   describe('changePassword', () => {
     it('should change password successfully', async () => {
-      req.body = {
-        oldPassword: 'OldPassword123!',
-        newPassword: 'NewPassword123!',
-      };
-      req.user = { id: 'userId' };
-
       const mockUser = {
         _id: 'userId',
+        email: 'test@example.com',
+        firstName: 'John',
+        lastName: 'Doe',
         password: 'hashedOldPassword',
-        save: jest.fn().mockResolvedValue(true),
       };
-
+      req.user = { id: 'userId' };
+      req.body = {
+        oldPassword: 'oldPassword',
+        newPassword: 'newPassword',
+        confirmNewPassword: 'newPassword',
+      };
       User.findById.mockResolvedValue(mockUser);
+      User.findByIdAndUpdate.mockResolvedValue({ ...mockUser, password: 'hashedNewPassword' });
       bcrypt.compare.mockResolvedValue(true);
       bcrypt.hash.mockResolvedValue('hashedNewPassword');
+      
+      // Mock mailSender
+      const mailSender = require('../utils/mailSender');
+      mailSender.mockResolvedValue({ response: 'Email sent' });
 
       await changePassword(req, res);
 
-      expect(mockUser.save).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         success: true,

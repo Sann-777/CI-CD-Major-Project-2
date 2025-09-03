@@ -39,11 +39,11 @@ exports.createCourse = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "All Fields are Mandatory",
+        message: 'All Fields are Mandatory',
       });
     }
     if (!status || status === undefined) {
-      status = "Draft";
+      status = 'Draft';
     }
 
     // Check if the user is an instructor
@@ -54,7 +54,7 @@ exports.createCourse = async (req, res) => {
     if (!categoryDetails) {
       return res.status(404).json({
         success: false,
-        message: "Category Details Not Found",
+        message: 'Category Details Not Found',
       });
     }
 
@@ -65,13 +65,13 @@ exports.createCourse = async (req, res) => {
       const mediaResponse = await axios.post(
         `${process.env.MEDIA_SERVICE_URL}/api/v1/media/upload`,
         { file: thumbnail },
-        { headers: { Authorization: req.headers.authorization } }
+        { headers: { Authorization: req.headers.authorization } },
       );
       thumbnailImage = mediaResponse.data.secure_url;
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "Failed to upload thumbnail",
+        message: 'Failed to upload thumbnail',
       });
     }
 
@@ -97,20 +97,20 @@ exports.createCourse = async (req, res) => {
           courses: newCourse._id,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     // Return the new course and a success message
     res.status(200).json({
       success: true,
       data: newCourse,
-      message: "Course Created Successfully",
+      message: 'Course Created Successfully',
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Failed to create course",
+      message: 'Failed to create course',
       error: error.message,
     });
   }
@@ -120,7 +120,7 @@ exports.createCourse = async (req, res) => {
 exports.getAllCourses = async (req, res) => {
   try {
     const allCourses = await Course.find(
-      { status: "Published" },
+      { status: 'Published' },
       {
         courseName: true,
         price: true,
@@ -128,9 +128,9 @@ exports.getAllCourses = async (req, res) => {
         instructor: true,
         ratingAndReviews: true,
         studentsEnroled: true,
-      }
+      },
     )
-      .populate("instructor")
+      .populate('instructor')
       .exec();
 
     return res.status(200).json({
@@ -141,7 +141,7 @@ exports.getAllCourses = async (req, res) => {
     console.log(error);
     return res.status(404).json({
       success: false,
-      message: `Can't Fetch Course Data`,
+      message: 'Can\'t Fetch Course Data',
       error: error.message,
     });
   }
@@ -155,18 +155,18 @@ exports.getCourseDetails = async (req, res) => {
       _id: courseId,
     })
       .populate({
-        path: "instructor",
+        path: 'instructor',
         populate: {
-          path: "additionalDetails",
+          path: 'additionalDetails',
         },
       })
-      .populate("category")
-      .populate("ratingAndReviews")
+      .populate('category')
+      .populate('ratingAndReviews')
       .populate({
-        path: "courseContent",
+        path: 'courseContent',
         populate: {
-          path: "subSection",
-          select: "-videoUrl",
+          path: 'subSection',
+          select: '-videoUrl',
         },
       })
       .exec();
@@ -212,22 +212,22 @@ exports.getFullCourseDetails = async (req, res) => {
       _id: courseId,
     })
       .populate({
-        path: "instructor",
+        path: 'instructor',
         populate: {
-          path: "additionalDetails",
+          path: 'additionalDetails',
         },
       })
-      .populate("category")
-      .populate("ratingAndReviews")
+      .populate('category')
+      .populate('ratingAndReviews')
       .populate({
-        path: "courseContent",
+        path: 'courseContent',
         populate: {
-          path: "subSection",
+          path: 'subSection',
         },
       })
       .exec();
 
-    let courseProgressCount = await CourseProgress.findOne({
+    const courseProgressCount = await CourseProgress.findOne({
       courseID: courseId,
       userId: userId,
     });
@@ -283,7 +283,7 @@ exports.getInstructorCourses = async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Failed to retrieve instructor courses",
+      message: 'Failed to retrieve instructor courses',
       error: error.message,
     });
   }
@@ -297,7 +297,7 @@ exports.deleteCourse = async (req, res) => {
     // Find the course
     const course = await Course.findById(courseId);
     if (!course) {
-      return res.status(404).json({ message: "Course not found" });
+      return res.status(404).json({ message: 'Course not found' });
     }
 
     // Unenroll students from the course
@@ -309,11 +309,11 @@ exports.deleteCourse = async (req, res) => {
           `${process.env.USER_SERVICE_URL}/api/v1/profile/unenroll`,
           {
             data: { userId: studentId, courseId },
-            headers: { Authorization: req.headers.authorization }
-          }
+            headers: { Authorization: req.headers.authorization },
+          },
         );
       } catch (error) {
-        console.error("Failed to unenroll student:", error);
+        console.error('Failed to unenroll student:', error);
       }
     }
 
@@ -335,13 +335,13 @@ exports.deleteCourse = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Course deleted successfully",
+      message: 'Course deleted successfully',
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      message: 'Server error',
       error: error.message,
     });
   }
@@ -355,7 +355,7 @@ exports.editCourse = async (req, res) => {
     const course = await Course.findById(courseId);
 
     if (!course) {
-      return res.status(404).json({ error: "Course not found" });
+      return res.status(404).json({ error: 'Course not found' });
     }
 
     // If Thumbnail Image is found, update it
@@ -365,13 +365,13 @@ exports.editCourse = async (req, res) => {
         const mediaResponse = await axios.post(
           `${process.env.MEDIA_SERVICE_URL}/api/v1/media/upload`,
           { file: thumbnail },
-          { headers: { Authorization: req.headers.authorization } }
+          { headers: { Authorization: req.headers.authorization } },
         );
         course.thumbnail = mediaResponse.data.secure_url;
       } catch (error) {
         return res.status(500).json({
           success: false,
-          message: "Failed to upload thumbnail",
+          message: 'Failed to upload thumbnail',
         });
       }
     }
@@ -379,7 +379,7 @@ exports.editCourse = async (req, res) => {
     // Update only the fields that are present in the request body
     for (const key in updates) {
       if (updates.hasOwnProperty(key)) {
-        if (key === "tag" || key === "instructions") {
+        if (key === 'tag' || key === 'instructions') {
           course[key] = JSON.parse(updates[key]);
         } else {
           course[key] = updates[key];
@@ -393,31 +393,31 @@ exports.editCourse = async (req, res) => {
       _id: courseId,
     })
       .populate({
-        path: "instructor",
+        path: 'instructor',
         populate: {
-          path: "additionalDetails",
+          path: 'additionalDetails',
         },
       })
-      .populate("category")
-      .populate("ratingAndReviews")
+      .populate('category')
+      .populate('ratingAndReviews')
       .populate({
-        path: "courseContent",
+        path: 'courseContent',
         populate: {
-          path: "subSection",
+          path: 'subSection',
         },
       })
       .exec();
 
     res.json({
       success: true,
-      message: "Course updated successfully",
+      message: 'Course updated successfully',
       data: updatedCourse,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: 'Internal server error',
       error: error.message,
     });
   }

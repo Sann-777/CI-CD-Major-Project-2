@@ -7,7 +7,7 @@ exports.errorHandler = (err, req, res, next) => {
   // Default error
   let error = {
     statusCode: err.statusCode || 500,
-    message: err.message || 'Internal Server Error'
+    message: err.message || 'Internal Server Error',
   };
 
   // Mongoose bad ObjectId
@@ -30,7 +30,7 @@ exports.errorHandler = (err, req, res, next) => {
 
   res.status(error.statusCode).json({
     success: false,
-    error: error.message
+    error: error.message,
   });
 };
 
@@ -41,7 +41,7 @@ exports.handleValidationErrors = (req, res, next) => {
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
-      errors: errors.array()
+      errors: errors.array(),
     });
   }
   next();

@@ -29,26 +29,12 @@ pipeline {
             }
         }
         
-        stage('Install Dependencies') {
-            parallel {
-                stage('Frontend Dependencies') {
-                    steps {
-                        dir('frontend-microservice') {
-                            sh 'npm ci'
-                        }
-                    }
-                }
-                stage('Backend Dependencies') {
-                    steps {
-                        script {
-                            def services = ['api-gateway', 'auth-service', 'course-service', 'payment-service']
-                            services.each { service ->
-                                dir("microservices/${service}") {
-                                    sh 'npm ci'
-                                }
-                            }
-                        }
-                    }
+        stage('Setup Pipeline Dependencies') {
+            steps {
+                script {
+                    // Run our comprehensive setup script
+                    sh 'chmod +x setup-pipeline.sh'
+                    sh './setup-pipeline.sh'
                 }
             }
         }
@@ -64,14 +50,8 @@ pipeline {
                 }
                 stage('Lint Backend') {
                     steps {
-                        script {
-                            def services = ['api-gateway', 'auth-service', 'course-service', 'payment-service']
-                            services.each { service ->
-                                dir("microservices/${service}") {
-                                    sh 'npm run lint || true'
-                                }
-                            }
-                        }
+                        // Use our centralized lint script
+                        sh 'npm run lint:services:ready || true'
                     }
                 }
                 stage('Security Scan') {
@@ -118,14 +98,8 @@ pipeline {
                 }
                 stage('Backend Tests') {
                     steps {
-                        script {
-                            def services = ['api-gateway', 'auth-service', 'course-service', 'payment-service']
-                            services.each { service ->
-                                dir("microservices/${service}") {
-                                    sh 'npm test || true'
-                                }
-                            }
-                        }
+                        // Use our centralized test script
+                        sh 'npm run test:services:ready || true'
                     }
                 }
             }

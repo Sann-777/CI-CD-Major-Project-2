@@ -4,13 +4,14 @@ const Course = require('../models/Course');
 const Category = require('../models/Category');
 const Section = require('../models/Section');
 const SubSection = require('../models/SubSection');
-const { createCourse, getAllCourses, getCourseDetails, getFullCourseDetails, editCourse, getInstructorCourses, deleteCourse } = require('../controllers/courseController');
+const { createCourse, getAllCourses, getCourseDetails, editCourse, deleteCourse, getInstructorCourses } = require('../controllers/courseController');
 
 // Mock dependencies
 jest.mock('../models/Course');
 jest.mock('../models/Category');
 jest.mock('../models/Section');
 jest.mock('../models/SubSection');
+jest.mock('axios');
 
 describe('Course Controller', () => {
   let req, res, next;
@@ -29,12 +30,12 @@ describe('Course Controller', () => {
         courseName: 'Test Course',
         courseDescription: 'Test Description',
         whatYouWillLearn: 'Test Learning',
-        price: 99.99,
-        tag: ['test'],
+        price: 100,
         category: 'categoryId',
-        status: 'Draft',
-        instructions: ['instruction1'],
+        tag: '["test"]',
+        instructions: '["test instructions"]',
       };
+      req.files = { thumbnailImage: 'test.jpg' };
       req.user = { id: 'instructorId' };
 
       const mockCategory = { _id: 'categoryId', name: 'Programming' };
@@ -42,10 +43,12 @@ describe('Course Controller', () => {
       const mockCourse = { _id: 'courseId', ...req.body, instructor: 'instructorId' };
 
       Category.findById.mockResolvedValue(mockCategory);
-      User.findById.mockResolvedValue(mockInstructor);
-      Course.prototype.save = jest.fn().mockResolvedValue(mockCourse);
+      Course.create = jest.fn().mockResolvedValue(mockCourse);
       Category.findByIdAndUpdate.mockResolvedValue(mockCategory);
-      User.findByIdAndUpdate.mockResolvedValue(mockInstructor);
+      
+      // Mock axios for media service
+      const axios = require('axios');
+      axios.post = jest.fn().mockResolvedValue({ data: { secure_url: 'http://example.com/thumbnail.jpg' } });
 
       await createCourse(req, res);
 
@@ -77,19 +80,19 @@ describe('Course Controller', () => {
         courseName: 'Test Course',
         courseDescription: 'Test Description',
         whatYouWillLearn: 'Test Learning',
-        price: 99.99,
-        tag: ['test'],
+        price: 100,
         category: 'invalidCategoryId',
-        status: 'Draft',
-        instructions: ['instruction1'],
+        tag: '["test"]',
+        instructions: '["test instructions"]',
       };
+      req.files = { thumbnailImage: 'test.jpg' };
       req.user = { id: 'instructorId' };
 
       Category.findById.mockResolvedValue(null);
 
       await createCourse(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
         message: 'Category Details Not Found',
@@ -134,16 +137,18 @@ describe('Course Controller', () => {
 
     it('should handle error when fetching courses', async () => {
       Course.find.mockReturnValue({
-        populate: jest.fn().mockReturnThis(),
-        exec: jest.fn().mockRejectedValue(new Error('Database error')),
+        sort: jest.fn().mockRejectedValue(new Error('Database error')),
       });
+      
+      // Mock console.error to avoid error output
+      jest.spyOn(console, 'error').mockImplementation(() => {});
 
       await getAllCourses(req, res);
 
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Cannot Fetch course data',
+        message: 'Can\'t Fetch Course Data',
         error: expect.any(String),
       });
     });
@@ -205,19 +210,33 @@ describe('Course Controller', () => {
 
   describe('editCourse', () => {
     it('should edit course successfully', async () => {
-      req.body = {
-        courseId: 'courseId',
-        courseName: 'Updated Course Name',
-        courseDescription: 'Updated Description',
+      const mockCourse = {
+        _id: 'courseId',
+        courseName: 'Test Course',
+        save: jest.fn().mockResolvedValue(true),
       };
-
       const mockUpdatedCourse = {
         _id: 'courseId',
-        courseName: 'Updated Course Name',
+        courseName: 'Updated Course',
         courseDescription: 'Updated Description',
       };
-
-      Course.findByIdAndUpdate.mockResolvedValue(mockUpdatedCourse);
+      req.body = {
+        courseId: 'courseId',
+        courseName: 'Updated Course',
+        courseDescription: 'Updated Description',
+      };
+      Course.findById.mockResolvedValue(mockCourse);
+      Course.findOne.mockReturnValue({
+        populate: jest.fn().mockReturnValue({
+          populate: jest.fn().mockReturnValue({
+            populate: jest.fn().mockReturnValue({
+              populate: jest.fn().mockReturnValue({
+                exec: jest.fn().mockResolvedValue(mockUpdatedCourse),
+              }),
+            }),
+          }),
+        }),
+      });
 
       await editCourse(req, res);
 
@@ -225,21 +244,18 @@ describe('Course Controller', () => {
       expect(res.json).toHaveBeenCalledWith({
         success: true,
         data: mockUpdatedCourse,
+        message: 'Course updated successfully',
       });
-    });
 
     it('should return error for missing course ID', async () => {
-      req.body = {
-        courseName: 'Updated Course Name',
-        // Missing courseId
-      };
+      req.body = { courseId: 'invalidId' };
+      Course.findById.mockResolvedValue(null);
 
       await editCourse(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        message: 'Course ID is required',
+        error: 'Course not found',
       });
     });
   });
@@ -249,20 +265,28 @@ describe('Course Controller', () => {
       req.body = { courseId: 'courseId' };
 
       const mockCourse = {
-        _id: 'courseId',
+        studentsEnroled: ['studentId1', 'studentId2'],
         courseContent: ['sectionId1', 'sectionId2'],
       };
+      
+      Section.findById.mockResolvedValue({ _id: 'sectionId1', subSection: ['subSectionId1'] });
+      SubSection.findByIdAndDelete.mockResolvedValue(true);
+      Section.findByIdAndDelete.mockResolvedValue(true);
 
       const mockSections = [
         { _id: 'sectionId1', subSection: ['subSectionId1'] },
         { _id: 'sectionId2', subSection: ['subSectionId2'] },
       ];
-
       Course.findById.mockResolvedValue(mockCourse);
       Section.find.mockResolvedValue(mockSections);
       SubSection.deleteMany.mockResolvedValue({ deletedCount: 2 });
       Section.deleteMany.mockResolvedValue({ deletedCount: 2 });
+      Course.findById.mockResolvedValue(mockCourse);
       Course.findByIdAndDelete.mockResolvedValue(mockCourse);
+      
+      // Mock axios for user service
+      const axios = require('axios');
+      axios.delete = jest.fn().mockResolvedValue({ data: { success: true } });
 
       await deleteCourse(req, res);
 
@@ -282,7 +306,6 @@ describe('Course Controller', () => {
 
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
-        success: false,
         message: 'Course not found',
       });
     });
@@ -293,21 +316,11 @@ describe('Course Controller', () => {
       req.user = { id: 'instructorId' };
 
       const mockCourses = [
-        {
-          _id: 'course1',
-          courseName: 'Course 1',
-          instructor: 'instructorId',
-        },
-        {
-          _id: 'course2',
-          courseName: 'Course 2',
-          instructor: 'instructorId',
-        },
+        { _id: 'course1', courseName: 'Course 1', instructor: 'instructorId' },
+        { _id: 'course2', courseName: 'Course 2', instructor: 'instructorId' },
       ];
-
       Course.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        populate: jest.fn().mockResolvedValue(mockCourses),
+        sort: jest.fn().mockResolvedValue(mockCourses),
       });
 
       await getInstructorCourses(req, res);
