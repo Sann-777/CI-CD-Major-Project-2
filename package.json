@@ -38,7 +38,8 @@
     
     "health:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"curl -f http://localhost:3001/health || echo 'Gateway down'\" \"curl -f http://localhost:3002/health || echo 'Auth down'\" \"curl -f http://localhost:3003/health || echo 'Course down'\" \"curl -f http://localhost:3004/health || echo 'Payment down'\" \"curl -f http://localhost:3005/health || echo 'Profile down'\" \"curl -f http://localhost:3006/health || echo 'Rating down'\" \"curl -f http://localhost:3007/health || echo 'Media down'\" \"curl -f http://localhost:3008/health || echo 'Notification down'\"",
     
-    "ci:setup": "bash setup-pipeline.sh",
+    "ci:setup": "bash jenkins-cache-setup.sh",
+    "ci:setup-legacy": "bash setup-pipeline.sh",
     "ci:install": "npm run ci:setup && npm run install:all",
     "ci:test": "npm run ci:setup && npm run test:services:ready",
     "ci:lint": "npm run ci:setup && npm run lint:services:ready",

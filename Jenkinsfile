@@ -32,9 +32,102 @@ pipeline {
         stage('Setup Pipeline Dependencies') {
             steps {
                 script {
-                    // Run our comprehensive setup script
-                    sh 'chmod +x setup-pipeline.sh'
-                    sh './setup-pipeline.sh'
+                    // Define cache keys based on package.json files
+                    def rootCacheKey = "npm-root-${sh(script: 'md5sum package.json | cut -d" " -f1', returnStdout: true).trim()}"
+                    def frontendCacheKey = "npm-frontend-${sh(script: 'md5sum frontend-microservice/package.json | cut -d" " -f1 2>/dev/null || echo "no-frontend"', returnStdout: true).trim()}"
+                    
+                    // Create cache keys for all microservices
+                    def services = ['api-gateway', 'auth-service', 'course-service', 'payment-service', 'profile-service', 'rating-service', 'media-service', 'notification-service']
+                    def serviceCacheKeys = [:]
+                    services.each { service ->
+                        serviceCacheKeys[service] = "npm-${service}-${sh(script: "md5sum microservices/${service}/package.json | cut -d' ' -f1 2>/dev/null || echo 'no-package'", returnStdout: true).trim()}"
+                    }
+                    
+                    echo "🔧 Setting up dependency caching..."
+                    
+                    // Cache npm global cache directory
+                    cache(maxCacheSize: 1000, caches: [
+                        arbitraryFileCache(
+                            path: '~/.npm',
+                            fingerprint: 'npm-global-cache'
+                        )
+                    ]) {
+                        // Cache root dependencies
+                        cache(maxCacheSize: 500, caches: [
+                            arbitraryFileCache(
+                                path: 'node_modules',
+                                fingerprint: rootCacheKey
+                            )
+                        ]) {
+                            echo "📦 Checking root dependencies cache..."
+                            if (!fileExists('node_modules')) {
+                                echo "💾 Installing root dependencies (cache miss)..."
+                                sh 'npm ci --cache ~/.npm --prefer-offline'
+                            } else {
+                                echo "⚡ Using cached root dependencies"
+                            }
+                        }
+                        
+                        // Cache frontend dependencies
+                        if (fileExists('frontend-microservice/package.json')) {
+                            cache(maxCacheSize: 500, caches: [
+                                arbitraryFileCache(
+                                    path: 'frontend-microservice/node_modules',
+                                    fingerprint: frontendCacheKey
+                                )
+                            ]) {
+                                echo "📦 Checking frontend dependencies cache..."
+                                if (!fileExists('frontend-microservice/node_modules')) {
+                                    echo "💾 Installing frontend dependencies (cache miss)..."
+                                    dir('frontend-microservice') {
+                                        sh 'npm ci --cache ~/.npm --prefer-offline'
+                                    }
+                                } else {
+                                    echo "⚡ Using cached frontend dependencies"
+                                }
+                            }
+                        }
+                        
+                        // Cache microservice dependencies
+                        services.each { service ->
+                            if (fileExists("microservices/${service}/package.json")) {
+                                cache(maxCacheSize: 200, caches: [
+                                    arbitraryFileCache(
+                                        path: "microservices/${service}/node_modules",
+                                        fingerprint: serviceCacheKeys[service]
+                                    )
+                                ]) {
+                                    echo "📦 Checking ${service} dependencies cache..."
+                                    if (!fileExists("microservices/${service}/node_modules")) {
+                                        echo "💾 Installing ${service} dependencies (cache miss)..."
+                                        dir("microservices/${service}") {
+                                            sh 'npm ci --cache ~/.npm --prefer-offline'
+                                        }
+                                    } else {
+                                        echo "⚡ Using cached ${service} dependencies"
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Install any missing global tools
+                        echo "🔧 Ensuring global tools are available..."
+                        sh '''
+                            # Check and install jest if needed
+                            if ! command -v jest &> /dev/null && ! [ -f "node_modules/.bin/jest" ]; then
+                                echo "Installing Jest globally..."
+                                npm install -g jest@latest --cache ~/.npm
+                            fi
+                            
+                            # Check and install concurrently if needed  
+                            if ! command -v concurrently &> /dev/null && ! [ -f "node_modules/.bin/concurrently" ]; then
+                                echo "Installing Concurrently globally..."
+                                npm install -g concurrently@latest --cache ~/.npm
+                            fi
+                            
+                            echo "✅ All dependencies ready!"
+                        '''
+                    }
                 }
             }
         }

@@ -14,22 +14,24 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Function to install dependencies for a service
+# Function to install dependencies for a service (Jenkins cache-friendly)
 install_service_deps() {
     local service_path=$1
     local service_name=$2
     
     if [ -d "$service_path" ]; then
-        echo "📦 Installing dependencies for $service_name..."
+        echo "📦 Checking dependencies for $service_name..."
         cd "$service_path"
         
-        # Clean install to avoid cache issues
-        if [ -f "package-lock.json" ]; then
-            rm -rf node_modules package-lock.json
+        # Check if node_modules exists and is valid
+        if [ -d "node_modules" ] && [ -f "package-lock.json" ]; then
+            echo "⚡ $service_name dependencies already cached"
+        else
+            echo "💾 Installing dependencies for $service_name..."
+            # Use npm ci for faster, reliable installs in CI
+            npm ci --cache ~/.npm --prefer-offline --silent 2>/dev/null || npm install --production=false --silent
+            echo "✅ $service_name dependencies installed"
         fi
-        
-        npm install --production=false --silent
-        echo "✅ $service_name dependencies installed"
         cd - > /dev/null
     else
         echo "⚠️  Warning: $service_path not found, skipping $service_name"
@@ -56,10 +58,15 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "📁 Project root: $PROJECT_ROOT"
 
 # Install root dependencies first
-echo "📦 Installing root dependencies..."
+echo "📦 Checking root dependencies..."
 cd "$PROJECT_ROOT"
-npm install --production=false --silent
-echo "✅ Root dependencies installed"
+if [ -d "node_modules" ] && [ -f "package-lock.json" ]; then
+    echo "⚡ Root dependencies already cached"
+else
+    echo "💾 Installing root dependencies..."
+    npm ci --cache ~/.npm --prefer-offline --silent 2>/dev/null || npm install --production=false --silent
+    echo "✅ Root dependencies installed"
+fi
 
 # Install dependencies for all microservices
 echo "📦 Installing microservice dependencies..."
