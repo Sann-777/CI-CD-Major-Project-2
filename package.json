@@ -21,15 +21,21 @@
     "build:services": "cd microservices && npm run build:all",
     "build:service": "cd microservices/$npm_config_service && npm run build",
     
-    "test:all": "npm run test:frontend && npm run test:services:all",
+    "test:all": "npm run test:frontend && npm run test:services:ready",
     "test:frontend": "cd frontend-microservice && npm test",
     "test:services:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd microservices/api-gateway && npm test\" \"cd microservices/auth-service && npm test\" \"cd microservices/course-service && npm test\" \"cd microservices/payment-service && npm test\" \"cd microservices/profile-service && npm test\" \"cd microservices/rating-service && npm test\" \"cd microservices/media-service && npm test\" \"cd microservices/notification-service && npm test\"",
+    "test:services:ready": "npx concurrently -n \"gateway,auth,course,profile,rating,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgBlueBright\" \"cd microservices/api-gateway && npm test\" \"cd microservices/auth-service && npm test\" \"cd microservices/course-service && npm test\" \"cd microservices/profile-service && npm test\" \"cd microservices/rating-service && npm test\" \"cd microservices/notification-service && npm test\"",
     "test:service": "cd microservices/$npm_config_service && npm test",
+    "test:coverage": "jest --coverage",
     
-    "lint:all": "npm run lint:frontend && npm run lint:services:all",
+    "lint:all": "npm run lint:frontend && npm run lint:services:ready",
     "lint:frontend": "cd frontend-microservice && npm run lint",
     "lint:services:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd microservices/api-gateway && npm run lint\" \"cd microservices/auth-service && npm run lint\" \"cd microservices/course-service && npm run lint\" \"cd microservices/payment-service && npm run lint\" \"cd microservices/profile-service && npm run lint\" \"cd microservices/rating-service && npm run lint\" \"cd microservices/media-service && npm run lint\" \"cd microservices/notification-service && npm run lint\"",
+    "lint:services:ready": "npx concurrently -n \"gateway,auth,course,profile,rating,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgBlueBright\" \"cd microservices/api-gateway && npm run lint\" \"cd microservices/auth-service && npm run lint\" \"cd microservices/course-service && npm run lint\" \"cd microservices/profile-service && npm run lint\" \"cd microservices/rating-service && npm run lint\" \"cd microservices/notification-service && npm run lint\"",
     "lint:service": "cd microservices/$npm_config_service && npm run lint",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     
     "start:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd microservices/api-gateway && npm start\" \"cd microservices/auth-service && npm start\" \"cd microservices/course-service && npm start\" \"cd microservices/payment-service && npm start\" \"cd microservices/profile-service && npm start\" \"cd microservices/rating-service && npm start\" \"cd microservices/media-service && npm start\" \"cd microservices/notification-service && npm start\"",
     "start:service": "cd microservices/$npm_config_service && npm start",
@@ -56,7 +62,13 @@
   },
   "devDependencies": {
     "concurrently": "^8.0.1",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.0",
+    "eslint-plugin-node": "^11.1.0",
+    "prettier": "^3.0.0",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "mongodb-memory-server": "^9.1.1"
   },
   "engines": {
     "node": ">=18.0.0",
