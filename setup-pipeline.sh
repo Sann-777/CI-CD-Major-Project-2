@@ -39,8 +39,8 @@ install_service_deps() {
             echo "💾 Installing dependencies for $service_name..."
             npm ci --cache ~/.npm --prefer-offline --silent \
                 || npm install --production=false --silent
-            npm audit fix --force
-            npm install -g yarn
+            sudo npm audit fix --force
+            sudo npm install -g yarn
         else
             echo "⚡ $service_name dependencies already cached"
         fi
