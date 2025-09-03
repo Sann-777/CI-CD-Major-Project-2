@@ -159,8 +159,3 @@ echo "================================================"
 
 # Return to original directory
 cd "$PROJECT_ROOT"
-
-echo "📦 Installing Gitleaks..."
-curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz \
-  | tar -xz -C /usr/local/bin gitleaks
-echo "✅ Gitleaks installed: $(gitleaks version)"
