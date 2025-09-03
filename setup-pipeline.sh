@@ -18,25 +18,41 @@ command_exists() {
 install_service_deps() {
     local service_path=$1
     local service_name=$2
-    
+    local cache_dir="/var/lib/jenkins/cache"
+    local cache_file="$cache_dir/${service_name// /_}-node_modules.tar.gz"
+
     if [ -d "$service_path" ]; then
         echo "📦 Checking dependencies for $service_name..."
         cd "$service_path"
-        
-        # Check if node_modules exists and is valid
-        if [ -d "node_modules" ] && [ -f "package-lock.json" ]; then
-            echo "⚡ $service_name dependencies already cached"
-        else
-            echo "💾 Installing dependencies for $service_name..."
-            # Use npm ci for faster, reliable installs in CI
-            npm ci --cache ~/.npm --prefer-offline --silent 2>/dev/null || npm install --production=false --silent
-            echo "✅ $service_name dependencies installed"
+
+        # Ensure cache dir exists
+        mkdir -p "$cache_dir"
+
+        # 1. Restore from cache if node_modules missing
+        if [ ! -d "node_modules" ] && [ -f "$cache_file" ]; then
+            echo "♻️ Restoring cached dependencies for $service_name..."
+            tar -xzf "$cache_file"
         fi
+
+        # 2. Install if node_modules is still missing or outdated
+        if [ ! -d "node_modules" ] || [ ! -f "package-lock.json" ]; then
+            echo "💾 Installing dependencies for $service_name..."
+            npm ci --cache ~/.npm --prefer-offline --silent \
+                || npm install --production=false --silent
+        else
+            echo "⚡ $service_name dependencies already cached"
+        fi
+
+        # 3. Update cache after fresh install
+        echo "🗄️ Updating cache for $service_name..."
+        tar -czf "$cache_file" node_modules package-lock.json 2>/dev/null || true
+
         cd - > /dev/null
     else
         echo "⚠️  Warning: $service_path not found, skipping $service_name"
     fi
 }
+
 
 # Check Node.js and npm
 echo "🔍 Checking Node.js and npm..."
