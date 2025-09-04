@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: media-service
+  namespace: studynotion
+  labels:
+    app: media-service
+    component: microservice
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3006
+    protocol: TCP
+    name: http
+  selector:
+    app: media-service

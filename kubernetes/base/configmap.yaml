@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: studynotion-config
+  namespace: studynotion
+data:
+  NODE_ENV: production
+  
+  # MongoDB URIs
+  MONGODB_URI_AUTH: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/auth"
+  MONGODB_URI_COURSE: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/course"
+  MONGODB_URI_PAYMENT: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/payment"
+  MONGODB_URI_PROFILE: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/profile"
+  MONGODB_URI_RATING: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/rating"
+  MONGODB_URI_MEDIA: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/media"
+  MONGODB_URI_NOTIFICATION: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/notification"
+  
+  # API Gateway Configuration
+  API_GATEWAY_PORT: "3000"
+  
+  # Service URLs
+  AUTH_SERVICE_URL: "http://auth-service.studynotion.svc.cluster.local"
+  COURSE_SERVICE_URL: "http://course-service.studynotion.svc.cluster.local"
+  PAYMENT_SERVICE_URL: "http://payment-service.studynotion.svc.cluster.local"
+  PROFILE_SERVICE_URL: "http://profile-service.studynotion.svc.cluster.local"
+  RATING_SERVICE_URL: "http://rating-service.studynotion.svc.cluster.local"
+  MEDIA_SERVICE_URL: "http://media-service.studynotion.svc.cluster.local"
+  NOTIFICATION_SERVICE_URL: "http://notification-service.studynotion.svc.cluster.local"
+  
+  # Frontend Configuration
+  API_BASE_URL: "https://api.studynotion.example.com"
+  FRONTEND_URL: "https://studynotion.example.com"
+  
+  # Mail Configuration
+  MAIL_HOST: "smtp.gmail.com"
+  MAIL_PORT: "587"
+  
+  # External Services
+  CLOUDINARY_CLOUD_NAME: "studynotion-cloud"
+  RAZORPAY_KEY_ID: "rzp_test_your_key_id"

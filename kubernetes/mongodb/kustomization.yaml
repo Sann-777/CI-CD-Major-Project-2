@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: studynotion
+
+resources:
+  - statefulset.yaml
+  - service.yaml
+
+# Add common labels to all resources
+commonLabels:
+  app: studynotion
+  component: database
+  environment: production
+
+# Add common annotations to all resources
+commonAnnotations:
+  description: "StudyNotion - MongoDB Database"

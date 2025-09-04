@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: studynotion
+  labels:
+    app: payment-service
+    component: microservice
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3003
+    protocol: TCP
+    name: http
+  selector:
+    app: payment-service

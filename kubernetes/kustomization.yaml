@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: studynotion
+
+resources:
+  # Base configuration
+  - base/
+  
+  # Database
+  - mongodb/
+  
+  # Microservices
+  - services/api-gateway/
+  - services/auth-service/
+  - services/course-service/
+  - services/payment-service/
+  - services/profile-service/
+  - services/rating-service/
+  - services/media-service/
+  - services/notification-service/
+  
+  # Ingress
+  - ingress/
+
+# Common labels for all resources
+commonLabels:
+  app: studynotion
+  version: "1.0.0"
+  managed-by: kustomize
+
+# Common annotations
+commonAnnotations:
+  description: "StudyNotion EdTech Platform - Complete Microservices Deployment"
+  contact: "devops@studynotion.com"

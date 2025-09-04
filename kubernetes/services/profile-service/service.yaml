@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: profile-service
+  namespace: studynotion
+  labels:
+    app: profile-service
+    component: microservice
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3004
+    protocol: TCP
+    name: http
+  selector:
+    app: profile-service

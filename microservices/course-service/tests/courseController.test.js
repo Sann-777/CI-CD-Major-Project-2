@@ -246,6 +246,7 @@ describe('Course Controller', () => {
         data: mockUpdatedCourse,
         message: 'Course updated successfully',
       });
+    });
 
     it('should return error for missing course ID', async () => {
       req.body = { courseId: 'invalidId' };

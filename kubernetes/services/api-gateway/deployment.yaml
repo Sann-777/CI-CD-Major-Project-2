@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: studynotion
+  labels:
+    app: api-gateway
+    component: microservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        component: microservice
+    spec:
+      containers:
+      - name: api-gateway
+        image: studynotion-api-gateway:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: API_GATEWAY_PORT
+        # Service URLs
+        - name: AUTH_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: AUTH_SERVICE_URL
+        - name: COURSE_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: COURSE_SERVICE_URL
+        - name: PAYMENT_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: PAYMENT_SERVICE_URL
+        - name: PROFILE_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: PROFILE_SERVICE_URL
+        - name: RATING_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: RATING_SERVICE_URL
+        - name: MEDIA_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: MEDIA_SERVICE_URL
+        - name: NOTIFICATION_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: NOTIFICATION_SERVICE_URL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: studynotion
+  labels:
+    app: payment-service
+    component: microservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+        component: microservice
+    spec:
+      containers:
+      - name: payment-service
+        image: studynotion-payment-service:latest
+        ports:
+        - containerPort: 3003
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: NODE_ENV
+        - name: PORT
+          value: "3003"
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: MONGODB_URI_PAYMENT
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: JWT_SECRET
+        - name: RAZORPAY_KEY_ID
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: RAZORPAY_KEY_ID
+        - name: RAZORPAY_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: RAZORPAY_KEY_SECRET
+        - name: FRONTEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: API_BASE_URL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5

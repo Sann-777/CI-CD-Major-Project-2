@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: course-service
+  namespace: studynotion
+  labels:
+    app: course-service
+    component: microservice
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3002
+    protocol: TCP
+    name: http
+  selector:
+    app: course-service

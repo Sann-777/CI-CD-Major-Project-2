@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-service
+  namespace: studynotion
+  labels:
+    app: profile-service
+    component: microservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: profile-service
+  template:
+    metadata:
+      labels:
+        app: profile-service
+        component: microservice
+    spec:
+      containers:
+      - name: profile-service
+        image: studynotion-profile-service:latest
+        ports:
+        - containerPort: 3004
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: NODE_ENV
+        - name: PORT
+          value: "3004"
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: MONGODB_URI_PROFILE
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: JWT_SECRET
+        - name: FRONTEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: API_BASE_URL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3004
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3004
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5

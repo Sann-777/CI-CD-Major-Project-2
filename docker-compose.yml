@@ -43,10 +43,10 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/auth?authSource=admin
-      - JWT_SECRET=eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTc1NjMxNjgzNywiaWF0IjoxNzU2MzE2ODM3fQ.EvGjJt9d_FB2SOw3oOdeJfdWPmcgozMURlrNmK020YQ
-      - MAIL_HOST=smtp.gmail.com
-      - MAIL_USER=hazardeager@gmail.com
-      - MAIL_PASS=eesk muta aupm uxuq
+      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASS=${MAIL_PASS}
       - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
     depends_on:
@@ -176,10 +176,10 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/notifications?authSource=admin
-      - JWT_SECRET=eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTc1NjMxNjgzNywiaWF0IjoxNzU2MzE2ODM3fQ.EvGjJt9d_FB2SOw3oOdeJfdWPmcgozMURlrNmK020YQ
-      - MAIL_HOST=smtp.gmail.com
-      - MAIL_USER=hazardeager@gmail.com
-      - MAIL_PASS=eesk muta aupm uxuq
+      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASS=${MAIL_PASS}
       - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
     depends_on:
