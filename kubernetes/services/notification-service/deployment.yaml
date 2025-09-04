@@ -20,7 +20,7 @@ spec:
       - name: notification-service
         image: studynotion-notification-service:latest
         ports:
-        - containerPort: 3007
+        - containerPort: 3006
         env:
         - name: NODE_ENV
           valueFrom:
@@ -28,7 +28,7 @@ spec:
               name: studynotion-config
               key: NODE_ENV
         - name: PORT
-          value: "3007"
+          value: "3006"
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
@@ -69,14 +69,14 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 3007
+            port: 3006
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
         readinessProbe:
           httpGet:
             path: /health
-            port: 3007
+            port: 3006
           initialDelaySeconds: 5
           periodSeconds: 10
           timeoutSeconds: 5

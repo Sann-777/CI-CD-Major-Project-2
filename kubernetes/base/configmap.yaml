@@ -19,13 +19,13 @@ data:
   API_GATEWAY_URL: "http://api-gateway.studynotion.svc.cluster.local:3000"
   
   # Service URLs
-  AUTH_SERVICE_URL: "http://auth-service.studynotion.svc.cluster.local"
-  COURSE_SERVICE_URL: "http://course-service.studynotion.svc.cluster.local"
-  PAYMENT_SERVICE_URL: "http://payment-service.studynotion.svc.cluster.local"
-  PROFILE_SERVICE_URL: "http://profile-service.studynotion.svc.cluster.local"
-  RATING_SERVICE_URL: "http://rating-service.studynotion.svc.cluster.local"
-  MEDIA_SERVICE_URL: "http://media-service.studynotion.svc.cluster.local"
-  NOTIFICATION_SERVICE_URL: "http://notification-service.studynotion.svc.cluster.local"
+  AUTH_SERVICE_URL: "http://auth-service.studynotion.svc.cluster.local:3001"
+  COURSE_SERVICE_URL: "http://course-service.studynotion.svc.cluster.local:3003"
+  PAYMENT_SERVICE_URL: "http://payment-service.studynotion.svc.cluster.local:3002"
+  PROFILE_SERVICE_URL: "http://profile-service.studynotion.svc.cluster.local:3004"
+  RATING_SERVICE_URL: "http://rating-service.studynotion.svc.cluster.local:3005"
+  MEDIA_SERVICE_URL: "http://media-service.studynotion.svc.cluster.local:3007"
+  NOTIFICATION_SERVICE_URL: "http://notification-service.studynotion.svc.cluster.local:3006"
   
   # Frontend Configuration
   API_BASE_URL: "https://api.studynotion.example.com"
