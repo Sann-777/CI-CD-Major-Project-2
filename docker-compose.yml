@@ -10,7 +10,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=${NODE_ENV:-development}
-      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
+      - JWT_SECRET=
       - AUTH_SERVICE_URL=http://auth-service:3001
       - COURSE_SERVICE_URL=http://course-service:3003
       - PAYMENT_SERVICE_URL=http://payment-service:3002
@@ -43,10 +43,10 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/auth?authSource=admin
-      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
-      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-      - MAIL_USER=${MAIL_USER}
-      - MAIL_PASS=${MAIL_PASS}
+      - JWT_SECRET=
+      - MAIL_HOST=
+      - MAIL_USER=
+      - MAIL_PASS=
       - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
     depends_on:
@@ -65,7 +65,7 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/courses?authSource=admin
-      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
+      - JWT_SECRET=
       - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
     depends_on:
@@ -84,9 +84,9 @@ services:
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/payments?authSource=admin
-      - JWT_SECRET=${JWT_SECRET:-default-secret-key}
-      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
-      - RAZORPAY_SECRET=${RAZORPAY_SECRET}
+      - JWT_SECRET=
+      - RAZORPAY_KEY_ID=
+      - RAZORPAY_SECRET=
     depends_on:
       - mongo
     networks:
@@ -116,8 +116,8 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password123}
+      - MONGO_INITDB_ROOT_USERNAME=
+      - MONGO_INITDB_ROOT_PASSWORD=
     volumes:
       - mongo-data:/data/db
       - ./microservices/scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
@@ -135,10 +135,10 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/profile?authSource=admin
-      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-studynotion-cloud}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-your-api-key}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-your-api-secret}
+      - JWT_SECRET=
+      - CLOUDINARY_CLOUD_NAME=
+      - CLOUDINARY_API_KEY=
+      - CLOUDINARY_API_SECRET=
       - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
     depends_on:
@@ -157,7 +157,7 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/ratings?authSource=admin
-      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
+      - JWT_SECRET=
       - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
     depends_on:
@@ -176,10 +176,10 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/notifications?authSource=admin
-      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
-      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-      - MAIL_USER=${MAIL_USER}
-      - MAIL_PASS=${MAIL_PASS}
+      - JWT_SECRET=
+      - MAIL_HOST=
+      - MAIL_USER=
+      - MAIL_PASS=
       - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
     depends_on:
@@ -198,10 +198,10 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongo:27017/media?authSource=admin
-      - JWT_SECRET=${JWT_SECRET:-studynotion-super-secret-jwt-key-2024-docker}
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-studynotion-cloud}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-your-api-key}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-your-api-secret}
+      - JWT_SECRET=
+      - CLOUDINARY_CLOUD_NAME=
+      - CLOUDINARY_API_KEY=
+      - CLOUDINARY_API_SECRET=
       - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
     depends_on:
