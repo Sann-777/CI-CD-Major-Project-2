@@ -65,4 +65,4 @@ spec:
   ports:
   - port: 3008
     targetPort: 3008
-  type: LoadBalancer
+  type: NodePort
