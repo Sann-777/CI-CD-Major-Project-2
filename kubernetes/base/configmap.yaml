@@ -17,6 +17,7 @@ data:
   
   # API Gateway Configuration
   API_GATEWAY_PORT: "3000"
+  API_GATEWAY_URL: "http://api-gateway.studynotion.svc.cluster.local:3000"
   
   # Service URLs
   AUTH_SERVICE_URL: "http://auth-service.studynotion.svc.cluster.local"

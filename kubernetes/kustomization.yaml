@@ -20,6 +20,9 @@ resources:
   - services/media-service/
   - services/notification-service/
   
+  # Frontend
+  - services/frontend-service/
+  
   # Ingress
   - ingress/
 
