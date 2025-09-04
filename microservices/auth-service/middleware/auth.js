@@ -1,102 +1,78 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+// Constants
+const USER_ROLES = {
+  STUDENT: 'Student',
+  INSTRUCTOR: 'Instructor',
+  ADMIN: 'Admin',
+};
+
+// Helper functions
+const createErrorResponse = (message, statusCode = 401) => ({
+  success: false,
+  message,
+});
+
+const extractToken = (req) => {
+  return req.cookies.token || 
+         req.body.token || 
+         req.header('Authorization')?.replace('Bearer ', '');
+};
+
+const verifyToken = (token) => {
+  if (!token) {
+    throw new Error('Token Missing');
+  }
+  
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    throw new Error('Token is invalid');
+  }
+};
+
+const checkUserRole = (requiredRole) => {
+  return async (req, res, next) => {
+    try {
+      const userDetails = req.user;
+
+      if (!userDetails) {
+        return res.status(401).json(
+          createErrorResponse('User authentication required')
+        );
+      }
+
+      if (userDetails.accountType !== requiredRole) {
+        return res.status(403).json(
+          createErrorResponse(`This is a protected route for ${requiredRole}s only`)
+        );
+      }
+
+      next();
+    } catch (error) {
+      return res.status(500).json(
+        createErrorResponse('User role verification failed')
+      );
+    }
+  };
+};
+
 // Authentication middleware
 exports.auth = async (req, res, next) => {
   try {
-    // Extract token from request
-    const token = 
-      req.cookies.token || 
-      req.body.token || 
-      req.header('Authorization')?.replace('Bearer ', '');
-
-    // If JWT is missing, return 401 Unauthorized response
-    if (!token) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Token Missing', 
-      });
-    }
-
-    try {
-      // Verify the JWT using the secret key
-      const decode = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decode;
-    } catch (error) {
-      // If JWT verification fails, return 401 Unauthorized response
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Token is invalid', 
-      });
-    }
-    
-    // If JWT is valid, move to the next middleware or route handler
+    const token = extractToken(req);
+    const decoded = verifyToken(token);
+    req.user = decoded;
     next();
   } catch (error) {
-    // If there is an error during the authentication process, return 401 Unauthorized response
-    return res.status(401).json({
-      success: false,
-      message: 'Something Went Wrong While Validating the Token',
-    });
+    return res.status(401).json(
+      createErrorResponse(error.message)
+    );
   }
 };
 
-// Middleware to check if user is a Student
-exports.isStudent = async (req, res, next) => {
-  try {
-    const userDetails = req.user;
-
-    if (userDetails.accountType !== 'Student') {
-      return res.status(401).json({
-        success: false,
-        message: 'This is a Protected Route for Students',
-      });
-    }
-    next();
-  } catch (error) {
-    return res.status(500).json({ 
-      success: false, 
-      message: 'User Role Can\'t be Verified', 
-    });
-  }
-};
-
-// Middleware to check if user is an Instructor
-exports.isInstructor = async (req, res, next) => {
-  try {
-    const userDetails = req.user;
-
-    if (userDetails.accountType !== 'Instructor') {
-      return res.status(401).json({
-        success: false,
-        message: 'This is a Protected Route for Instructors',
-      });
-    }
-    next();
-  } catch (error) {
-    return res.status(500).json({ 
-      success: false, 
-      message: 'User Role Can\'t be Verified', 
-    });
-  }
-};
-
-// Middleware to check if user is an Admin
-exports.isAdmin = async (req, res, next) => {
-  try {
-    const userDetails = req.user;
-
-    if (userDetails.accountType !== 'Admin') {
-      return res.status(401).json({
-        success: false,
-        message: 'This is a Protected Route for Admin',
-      });
-    }
-    next();
-  } catch (error) {
-    return res.status(500).json({ 
-      success: false, 
-      message: 'User Role Can\'t be Verified', 
-    });
-  }
-};
+// Role-based middleware
+exports.isStudent = checkUserRole(USER_ROLES.STUDENT);
+exports.isInstructor = checkUserRole(USER_ROLES.INSTRUCTOR);
+exports.isAdmin = checkUserRole(USER_ROLES.ADMIN);

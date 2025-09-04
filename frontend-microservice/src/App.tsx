@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState, AppDispatch } from '@/store'
@@ -43,10 +43,28 @@ function App() {
   const { user } = useSelector((state: RootState) => state.profile)
   const { loading } = useSelector((state: RootState) => state.auth)
 
+  // Memoize user account type checks
+  const isInstructor = useMemo(() => 
+    user?.accountType === ACCOUNT_TYPE.INSTRUCTOR, [user?.accountType]
+  )
+  
+  const isStudent = useMemo(() => 
+    user?.accountType === ACCOUNT_TYPE.STUDENT, [user?.accountType]
+  )
+
   useEffect(() => {
-    if (localStorage.getItem('token') && !user) {
-      const token = JSON.parse(localStorage.getItem('token')!)
-      dispatch(getUserDetails(token, navigate))
+    const token = localStorage.getItem('token')
+    
+    if (token && !user) {
+      try {
+        const parsedToken = JSON.parse(token)
+        if (parsedToken) {
+          dispatch(getUserDetails(parsedToken, navigate))
+        }
+      } catch (error) {
+        // Invalid token format, remove it
+        localStorage.removeItem('token')
+      }
     }
   }, [dispatch, navigate, user])
 
@@ -123,7 +141,7 @@ function App() {
           <Route path="dashboard/settings" element={<Settings />} />
           
           {/* Route only for Instructors */}
-          {user?.accountType === ACCOUNT_TYPE.INSTRUCTOR && (
+          {isInstructor && (
             <>
               <Route path="dashboard/instructor" element={<Instructor />} />
               <Route path="dashboard/my-courses" element={<MyCourses />} />
@@ -136,7 +154,7 @@ function App() {
           )}
           
           {/* Route only for Students */}
-          {user?.accountType === ACCOUNT_TYPE.STUDENT && (
+          {isStudent && (
             <>
               <Route
                 path="dashboard/enrolled-courses"
@@ -155,7 +173,7 @@ function App() {
             </PrivateRoute>
           }
         >
-          {user?.accountType === ACCOUNT_TYPE.STUDENT && (
+          {isStudent && (
             <Route
               path="view-course/:courseId/section/:sectionId/sub-section/:subSectionId"
               element={<VideoDetails />}
