@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: course-service
-  namespace: studynotion
   labels:
     app: course-service
     component: microservice
