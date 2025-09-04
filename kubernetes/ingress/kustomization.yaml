@@ -4,6 +4,13 @@ kind: Kustomization
 resources:
   - ingress.yaml
 
-commonLabels:
-  app: studynotion
-  component: ingress
+# Add common labels to all resources
+labels:
+  - pairs:
+      app: studynotion
+      component: ingress
+
+# Add common annotations to all resources
+commonAnnotations:
+  description: "StudyNotion - Ingress Configuration"
+  version: "1.0.0"

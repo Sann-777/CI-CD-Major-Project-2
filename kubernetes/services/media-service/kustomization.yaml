@@ -5,6 +5,13 @@ resources:
   - deployment.yaml
   - service.yaml
 
-commonLabels:
-  app: media-service
-  component: microservice
+# Add common labels to all resources
+labels:
+  - pairs:
+      app: media-service
+      component: microservice
+
+# Add common annotations to all resources
+commonAnnotations:
+  description: "StudyNotion - Media Service"
+  version: "1.0.0"

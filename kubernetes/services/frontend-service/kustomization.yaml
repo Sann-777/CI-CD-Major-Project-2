@@ -6,9 +6,10 @@ resources:
   - service.yaml
 
 # Add common labels to all resources
-commonLabels:
-  app: frontend-service
-  component: frontend
+labels:
+  - pairs:
+      app: frontend-service
+      component: frontend
 
 # Add common annotations to all resources
 commonAnnotations:

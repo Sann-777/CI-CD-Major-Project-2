@@ -5,6 +5,13 @@ resources:
   - deployment.yaml
   - service.yaml
 
-commonLabels:
-  app: course-service
-  component: microservice
+# Add common labels to all resources
+labels:
+  - pairs:
+      app: course-service
+      component: microservice
+
+# Add common annotations to all resources
+commonAnnotations:
+  description: "StudyNotion - Course Service"
+  version: "1.0.0"

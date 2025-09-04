@@ -5,6 +5,13 @@ resources:
   - deployment.yaml
   - service.yaml
 
-commonLabels:
-  app: auth-service
-  component: microservice
+# Add common labels to all resources
+labels:
+  - pairs:
+      app: auth-service
+      component: microservice
+
+# Add common annotations to all resources
+commonAnnotations:
+  description: "StudyNotion - Auth Service"
+  version: "1.0.0"

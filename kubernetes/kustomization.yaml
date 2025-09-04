@@ -27,10 +27,11 @@ resources:
   - ingress/
 
 # Common labels for all resources
-commonLabels:
-  app: studynotion
-  version: "1.0.0"
-  managed-by: kustomize
+labels:
+  - pairs:
+      app: studynotion
+      version: "1.0.0"
+      managed-by: kustomize
 
 # Common annotations
 commonAnnotations:
