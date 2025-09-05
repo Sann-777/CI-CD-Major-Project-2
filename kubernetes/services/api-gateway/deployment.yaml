@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: studynotion-api-gateway:latest
+        image: asxhazard/studynotion-api-gateway:latest
         ports:
         - containerPort: 3000
         env:

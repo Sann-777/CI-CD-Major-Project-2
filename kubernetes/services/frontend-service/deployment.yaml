@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: frontend-service
-        image: studynotion-frontend:latest
+        image: asxhazard/studynotion-frontend:latest
         ports:
         - containerPort: 3008
         env:

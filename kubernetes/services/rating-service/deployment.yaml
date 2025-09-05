@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: rating-service
-        image: studynotion-rating-service:latest
+        image: asxhazard/studynotion-rating-service:latest
         ports:
         - containerPort: 3005
         env:

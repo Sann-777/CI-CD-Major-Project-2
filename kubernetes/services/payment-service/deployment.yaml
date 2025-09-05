@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: payment-service
-        image: studynotion-payment-service:latest
+        image: asxhazard/studynotion-payment-service:latest
         ports:
         - containerPort: 3002
         env:

@@ -499,3 +499,101 @@ http {
         }
     }
 }
+
+
+
+
+@Library('Shared') _
+pipeline {
+    agent any
+    
+    environment{
+        SONAR_HOME = tool "Sonar"
+    }
+    
+    stages{
+        stage("Workspace Cleanup"){
+            steps{
+                script{
+                    clean_workspace()
+                }
+            }
+        }
+        
+        stage("Code Checkout"){
+            steps{
+                script{
+                    code_checkout("https://github.com/Sann-777/CI-CD-Major-Project-2.git","main")
+                }
+            }
+        }
+        
+        stage("Secret Scanning"){
+            steps{
+                script{
+                    secret_scan(allowFailure: true)
+                }
+            }
+        }
+        
+        // stage('Install and Cache Dependencies') {
+        //     steps {
+        //         script {
+        //             sh 'chmod +x setup-pipeline.sh'
+        //             sh './setup-pipeline.sh'
+        //         }
+        //     }
+        // }
+        
+        // stage("Testing"){
+        //     parallel{
+        //         stage("Unit Testing"){
+        //             steps{
+        //                 script{
+        //                     sh 'npm run test:services:ready || true'
+        //                 }
+        //             }
+        //         }
+        //         stage("Lint and Style Testing"){
+        //             steps{
+        //                 script{
+        //                     sh 'npm run lint:services:ready || true'
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        
+        // stage("SonarQube: Code Analysis"){
+        //     steps{
+        //         script{
+        //             sonarqube_analysis("Sonar","studynotion","studynotion")
+        //         }
+        //     }
+        // }
+        
+        // stage("SonarQube: Code Quality Gates"){
+        //     steps{
+        //         script{
+        //             sonarqube_code_quality()
+        //         }
+        //     }
+        // }
+        
+        // stage("OWASP: Dependency Check"){
+        //     steps{
+        //         script{
+        //             owasp_dependency()
+        //         }
+        //     }
+        // }
+        
+        // stage("Trivy: Filesystem Scan"){
+        //     steps{
+        //         script{
+        //             trivy_scan()
+        //         }
+        //     }
+        // }
+    }
+}
