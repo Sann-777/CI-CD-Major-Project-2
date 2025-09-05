@@ -1,0 +1,20 @@
+# Frontend Service
+# Exposes React frontend application to external traffic
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: default
+  labels:
+    app: studynotion
+    component: frontend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3008
+      targetPort: 3008
+      protocol: TCP
+      name: http
+  selector:
+    app: studynotion
+    component: frontend

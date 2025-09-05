@@ -3,27 +3,13 @@ kind: Service
 metadata:
   name: mongodb
   labels:
-    app: mongodb
-    component: database
+    app: studynotion
+    component: mongodb
 spec:
   clusterIP: None  # This makes it a headless service
   ports:
   - port: 27017
     targetPort: 27017
   selector:
-    app: mongodb
----
-# Regular service for MongoDB (optional, for clients that don't support SRV records)
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongodb-svc
-  labels:
-    app: mongodb
-    component: database
-spec:
-  ports:
-  - port: 27017
-    targetPort: 27017
-  selector:
-    app: mongodb
+    app: studynotion
+    component: mongodb

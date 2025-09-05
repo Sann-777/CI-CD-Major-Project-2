@@ -1,76 +1,20 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+const ServerConfig = require('@studynotion/shared/config/serverConfig');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-require('dotenv').config();
+const axios = require('axios');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+// Create server instance
+const server = new ServerConfig('api-gateway', 4000);
+const app = server.getApp();
 
-// Security middleware
-app.use(helmet());
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000 // limit each IP to 1000 requests per windowMs
-});
-app.use(limiter);
-
-// CORS configuration
-const allowedOrigins = [
-  'http://localhost:3008',
-  'https://studynotion.example.com',
-  'http://studynotion.example.com',
-  process.env.FRONTEND_URL
-].filter(Boolean);
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    
-    // Allow any localhost with any port for development
-    if (/^https?:\/\/localhost:\d+$/.test(origin)) {
-      return callback(null, true);
-    }
-    
-    // Allow LAN IP addresses with any port (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
-    if (/^https?:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin) ||
-        /^https?:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
-        /^https?:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+(:\d+)?$/.test(origin)) {
-      return callback(null, true);
-    }
-    
-    // Allow development mode - accept any origin in development
-    if (process.env.NODE_ENV === 'development') {
-      return callback(null, true);
-    }
-    
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true
-}));
-
-// Body parsing middleware
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true }));
-
-// Service URLs
+// Service URLs with correct port mappings
 const services = {
   auth: process.env.AUTH_SERVICE_URL || 'http://localhost:3001',
   course: process.env.COURSE_SERVICE_URL || 'http://localhost:3003',
   payment: process.env.PAYMENT_SERVICE_URL || 'http://localhost:3002',
   profile: process.env.PROFILE_SERVICE_URL || 'http://localhost:3004',
-  rating: process.env.RATING_SERVICE_URL || 'http://localhost:3007',
-  notification: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3006',
-  media: process.env.MEDIA_SERVICE_URL || 'http://localhost:3005'
+  rating: process.env.RATING_SERVICE_URL || 'http://localhost:3005',
+  media: process.env.MEDIA_SERVICE_URL || 'http://localhost:3006',
+  notification: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3007'
 };
 
 // Proxy configuration
@@ -78,25 +22,30 @@ const createProxy = (target) => createProxyMiddleware({
   target,
   changeOrigin: true,
   timeout: 30000,
-  logLevel: 'debug',
+  logLevel: process.env.NODE_ENV === 'development' ? 'debug' : 'warn',
   onError: (err, req, res) => {
     console.error(`Proxy error for ${target}:`, err.message);
     if (!res.headersSent) {
       res.status(503).json({
         success: false,
         message: 'Service temporarily unavailable',
-        error: 'PROXY_ERROR'
+        error: 'PROXY_ERROR',
+        service: target
       });
     }
   },
   onProxyReq: (proxyReq, req, res) => {
-    console.log(`Proxying ${req.method} ${req.url} to ${target}`);
-    // Forward original headers
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Proxying ${req.method} ${req.url} to ${target}`);
+    }
+    
+    // Forward authorization headers
     if (req.headers.authorization) {
       proxyReq.setHeader('Authorization', req.headers.authorization);
     }
-    // Handle body for POST requests
-    if (req.body && (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH')) {
+    
+    // Handle body for POST/PUT/PATCH requests
+    if (req.body && ['POST', 'PUT', 'PATCH'].includes(req.method)) {
       const bodyData = JSON.stringify(req.body);
       proxyReq.setHeader('Content-Type', 'application/json');
       proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
@@ -104,11 +53,13 @@ const createProxy = (target) => createProxyMiddleware({
     }
   },
   onProxyRes: (proxyRes, req, res) => {
-    console.log(`Response from ${req.url}: ${proxyRes.statusCode}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Response from ${req.url}: ${proxyRes.statusCode}`);
+    }
   }
 });
 
-// Route proxying
+// Route proxying with correct paths
 app.use('/api/v1/auth', createProxy(services.auth));
 app.use('/api/v1/course', createProxy(services.course));
 app.use('/api/v1/category', createProxy(services.course));
@@ -119,34 +70,43 @@ app.use('/api/v1/notification', createProxy(services.notification));
 app.use('/api/v1/reach', createProxy(services.notification));
 app.use('/api/v1/media', createProxy(services.media));
 
-// Health check endpoint
+// Custom health check for API Gateway
 app.get('/health', (req, res) => {
   res.status(200).json({
     service: 'api-gateway',
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    version: process.env.npm_package_version || '1.0.0',
+    services: Object.keys(services)
   });
 });
 
-// Service health check endpoint (separate from gateway health)
+// Comprehensive service health check
 app.get('/health/services', async (req, res) => {
   const healthChecks = {};
   
-  // Check health of all services
   for (const [serviceName, serviceUrl] of Object.entries(services)) {
     try {
-      const axios = require('axios');
       const response = await axios.get(`${serviceUrl}/health`, { 
         timeout: 5000 
       });
-      healthChecks[serviceName] = response.status === 200 ? 'healthy' : 'unhealthy';
+      healthChecks[serviceName] = {
+        status: response.status === 200 ? 'healthy' : 'unhealthy',
+        url: serviceUrl,
+        responseTime: response.headers['x-response-time'] || 'unknown'
+      };
     } catch (error) {
-      healthChecks[serviceName] = 'unreachable';
+      healthChecks[serviceName] = {
+        status: 'unreachable',
+        url: serviceUrl,
+        error: error.message
+      };
     }
   }
 
-  const allHealthy = Object.values(healthChecks).every(status => status === 'healthy');
+  const allHealthy = Object.values(healthChecks).every(check => check.status === 'healthy');
 
   res.status(200).json({
     service: 'api-gateway',
@@ -161,6 +121,11 @@ app.get('/health/services', async (req, res) => {
 app.get('/api/services', (req, res) => {
   res.json({
     success: true,
+    gateway: {
+      name: 'api-gateway',
+      version: process.env.npm_package_version || '1.0.0',
+      uptime: process.uptime()
+    },
     services: Object.keys(services).map(name => ({
       name,
       url: services[name],
@@ -169,7 +134,7 @@ app.get('/api/services', (req, res) => {
   });
 });
 
-// Get service endpoints
+// Service endpoints documentation
 function getServiceEndpoints(serviceName) {
   const endpoints = {
     auth: [
@@ -218,21 +183,17 @@ function getServiceEndpoints(serviceName) {
   return endpoints[serviceName] || [];
 }
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Gateway error:', err);
-  res.status(500).json({
-    success: false,
-    message: 'Internal gateway error',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
-  });
-});
+// Use shared error handler
+const { errorHandler } = require('./middleware/errorHandler');
+server.addErrorHandler(errorHandler);
 
-// 404 handler
+// Custom 404 handler for API Gateway
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
     message: 'Route not found',
+    service: 'api-gateway',
+    path: req.originalUrl,
     availableRoutes: [
       '/api/v1/auth/*',
       '/api/v1/course/*',
@@ -241,12 +202,16 @@ app.use('*', (req, res) => {
       '/api/v1/profile/*',
       '/api/v1/rating/*',
       '/api/v1/notification/*',
-      '/api/v1/media/*'
+      '/api/v1/media/*',
+      '/health',
+      '/health/services',
+      '/api/services'
     ]
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`API Gateway running on port ${PORT}`);
+// Start server
+server.start(() => {
   console.log('Available services:', Object.keys(services).join(', '));
+  console.log('Service URLs:', services);
 });

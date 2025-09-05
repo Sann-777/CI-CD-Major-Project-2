@@ -3,14 +3,15 @@ kind: Service
 metadata:
   name: course-service
   labels:
-    app: course-service
-    component: microservice
+    app: studynotion
+    component: course-service
 spec:
   type: ClusterIP
   ports:
-  - port: 3003
-    targetPort: 3003
-    protocol: TCP
-    name: http
+    - port: 3003
+      targetPort: 3003
+      protocol: TCP
+      name: http
   selector:
-    app: course-service
+    app: studynotion
+    component: course-service

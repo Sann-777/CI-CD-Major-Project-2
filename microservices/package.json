@@ -3,17 +3,15 @@
   "version": "1.0.0",
   "description": "Root package for StudyNotion microservices",
   "scripts": {
+    "preinstall": "npm run build:shared",
+    "build:shared": "cd shared && npm install && npm pack",
     "install:all": "npm run install:services",
-    "install:services": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd api-gateway && npm install\" \"cd auth-service && npm install\" \"cd course-service && npm install\" \"cd payment-service && npm install\" \"cd profile-service && npm install\" \"cd rating-service && npm install\" \"cd media-service && npm install\" \"cd notification-service && npm install\"",
-    
+    "install:services": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd api-gateway && npm install\" \"cd auth-service && npm install\" \"cd course-service && npm install\" \"cd payment-service && npm install\" \"cd profile-service && npm install\" \"cd rating-service && npm install\" \"cd media-service && npm install\" \"cd notification-service && npm install\",
+    "postinstall": "rm -f shared/studynotion-1.0.0.tgz",,
     "dev:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd api-gateway && npm run dev\" \"cd auth-service && npm run dev\" \"cd course-service && npm run dev\" \"cd payment-service && npm run dev\" \"cd profile-service && npm run dev\" \"cd rating-service && npm run dev\" \"cd media-service && npm run dev\" \"cd notification-service && npm run dev\"",
-    
     "build:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd api-gateway && npm run build\" \"cd auth-service && npm run build\" \"cd course-service && npm run build\" \"cd payment-service && npm run build\" \"cd profile-service && npm run build\" \"cd rating-service && npm run build\" \"cd media-service && npm run build\" \"cd notification-service && npm run build\"",
-    
     "test:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd api-gateway && npm test\" \"cd auth-service && npm test\" \"cd course-service && npm test\" \"cd payment-service && npm test\" \"cd profile-service && npm test\" \"cd rating-service && npm test\" \"cd media-service && npm test\" \"cd notification-service && npm test\"",
-    
     "lint:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd api-gateway && npm run lint\" \"cd auth-service && npm run lint\" \"cd course-service && npm run lint\" \"cd payment-service && npm run lint\" \"cd profile-service && npm run lint\" \"cd rating-service && npm run lint\" \"cd media-service && npm run lint\" \"cd notification-service && npm run lint\"",
-    
     "start:all": "npx concurrently -n \"gateway,auth,course,payment,profile,rating,media,notification\" -c \"bgGreen,bgYellow,bgMagenta,bgCyan,bgRed,bgWhite,bgGray,bgBlueBright\" \"cd api-gateway && npm start\" \"cd auth-service && npm start\" \"cd course-service && npm start\" \"cd payment-service && npm start\" \"cd profile-service && npm start\" \"cd rating-service && npm start\" \"cd media-service && npm start\" \"cd notification-service && npm start\""
   },
   "devDependencies": {

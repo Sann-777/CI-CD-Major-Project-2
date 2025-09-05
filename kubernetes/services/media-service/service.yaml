@@ -3,14 +3,15 @@ kind: Service
 metadata:
   name: media-service
   labels:
-    app: media-service
-    component: microservice
+    app: studynotion
+    component: media-service
 spec:
   type: ClusterIP
   ports:
-  - port: 3007
-    targetPort: 3007
-    protocol: TCP
-    name: http
+    - port: 3006
+      targetPort: 3006
+      protocol: TCP
+      name: http
   selector:
-    app: media-service
+    app: studynotion
+    component: media-service

@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const fileUpload = require('express-fileupload');
 require('dotenv').config();
-const ServerConfig = require('../shared/config/serverConfig');
+const ServerConfig = require('@studynotion/shared/config/serverConfig');
 
 const mediaRoutes = require('./routes/media');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -13,6 +13,9 @@ const { cloudinaryConnect } = require('./config/cloudinary');
 // Create server instance
 const server = new ServerConfig('media-service', 3006);
 const app = server.getApp();
+
+// Connect to database
+server.connectToDatabase('media');
 
 // Connect to Cloudinary
 cloudinaryConnect();

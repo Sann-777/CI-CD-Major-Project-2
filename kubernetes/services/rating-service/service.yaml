@@ -3,14 +3,15 @@ kind: Service
 metadata:
   name: rating-service
   labels:
-    app: rating-service
-    component: microservice
+    app: studynotion
+    component: rating-service
 spec:
   type: ClusterIP
   ports:
-  - port: 3005
-    targetPort: 3005
-    protocol: TCP
-    name: http
+    - port: 3005
+      targetPort: 3005
+      protocol: TCP
+      name: http
   selector:
-    app: rating-service
+    app: studynotion
+    component: rating-service

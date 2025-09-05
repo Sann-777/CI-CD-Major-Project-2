@@ -1,0 +1,20 @@
+# MongoDB Service
+# Provides stable network endpoint for database access
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  namespace: default
+  labels:
+    app: studynotion
+    component: database
+spec:
+  type: ClusterIP
+  ports:
+  - port: 27017
+    targetPort: 27017
+    protocol: TCP
+    name: mongodb
+  selector:
+    app: studynotion
+    component: database

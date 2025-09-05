@@ -1,219 +1,261 @@
 version: '3.8'
 
 services:
-  api-gateway:
-    build:
-      context: ./microservices/api-gateway
-      dockerfile: Dockerfile
-    container_name: studynotion-api-gateway
-    ports:
-      - "3000:3000"
+  mongodb:
+    image: mongo:6.0
+    container_name: studynotion-mongodb
+    restart: unless-stopped
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - JWT_SECRET=${JWT_SECRET}
-      - AUTH_SERVICE_URL=http://auth-service:3001
-      - COURSE_SERVICE_URL=http://course-service:3003
-      - PAYMENT_SERVICE_URL=http://payment-service:3002
-      - PROFILE_SERVICE_URL=http://profile-service:3004
-      - RATING_SERVICE_URL=http://rating-service:3005
-      - NOTIFICATION_SERVICE_URL=http://notification-service:3006
-      - MEDIA_SERVICE_URL=http://media-service:3007
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
-      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
-    depends_on:
-      - mongo
-      - auth-service
-      - course-service
-      - payment-service
-      - profile-service
-      - rating-service
-      - notification-service
-      - media-service
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-password123}
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-studynotion}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongodb-init:/docker-entrypoint-initdb.d
     networks:
       - studynotion-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  api-gateway:
+    build:
+      context: ./microservices
+      dockerfile: api-gateway/Dockerfile
+    container_name: studynotion-api-gateway
     restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - PAYMENT_SERVICE_URL=http://payment-service:3002
+      - COURSE_SERVICE_URL=http://course-service:3003
+      - PROFILE_SERVICE_URL=http://profile-service:3004
+      - RATING_SERVICE_URL=http://rating-service:3005
+      - MEDIA_SERVICE_URL=http://media-service:3006
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3007
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - studynotion-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   auth-service:
     build:
-      context: ./microservices/auth-service
-      dockerfile: Dockerfile
+      context: ./microservices
+      dockerfile: auth-service/Dockerfile
     container_name: studynotion-auth-service
-    ports:
-      - "3001:3001"
+    restart: unless-stopped
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD}@mongo:27017/auth?authSource=admin
-      - JWT_SECRET=${JWT_SECRET}
-      - MAIL_HOST=${MAIL_HOST}
-      - MAIL_USER=${MAIL_USER}
-      - MAIL_PASS=${MAIL_PASS}
-      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGODB_URL=mongodb://${MONGODB_USERNAME:-admin}:${MONGODB_PASSWORD:-password123}@mongodb:27017/${MONGODB_DATABASE:-studynotion}?authSource=admin
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-here}
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_USER=${MAIL_USER:-your-email@gmail.com}
+      - MAIL_PASS=${MAIL_PASS:-your-app-password}
+      - BCRYPT_SALT_ROUNDS=12
     depends_on:
-      - mongo
+      mongodb:
+        condition: service_healthy
     networks:
       - studynotion-network
-    restart: unless-stopped
-
-  course-service:
-    build:
-      context: ./microservices/course-service
-      dockerfile: Dockerfile
-    container_name: studynotion-course-service
-    ports:
-      - "3003:3003"
-    environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD}@mongo:27017/courses?authSource=admin
-      - JWT_SECRET=${JWT_SECRET}
-      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
-    depends_on:
-      - mongo
-    networks:
-      - studynotion-network
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   payment-service:
     build:
-      context: ./microservices/payment-service
-      dockerfile: Dockerfile
+      context: ./microservices
+      dockerfile: payment-service/Dockerfile
     container_name: studynotion-payment-service
-    ports:
-      - "3002:3002"
+    restart: unless-stopped
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD}@mongo:27017/payments?authSource=admin
-      - JWT_SECRET=${JWT_SECRET}
-      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
-      - RAZORPAY_SECRET=${RAZORPAY_SECRET}
+      - NODE_ENV=production
+      - PORT=3002
+      - MONGODB_URL=mongodb://${MONGODB_USERNAME:-admin}:${MONGODB_PASSWORD:-password123}@mongodb:27017/${MONGODB_DATABASE:-studynotion}?authSource=admin
+      - RAZORPAY_KEY=${RAZORPAY_KEY:-your-razorpay-key}
+      - RAZORPAY_SECRET=${RAZORPAY_SECRET:-your-razorpay-secret}
+      - COURSE_SERVICE_URL=http://course-service:3003
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3007
     depends_on:
-      - mongo
+      mongodb:
+        condition: service_healthy
     networks:
       - studynotion-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  course-service:
+    build:
+      context: ./microservices
+      dockerfile: course-service/Dockerfile
+    container_name: studynotion-course-service
     restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - MONGODB_URL=mongodb://${MONGODB_USERNAME:-admin}:${MONGODB_PASSWORD:-password123}@mongodb:27017/${MONGODB_DATABASE:-studynotion}?authSource=admin
+      - MEDIA_SERVICE_URL=http://media-service:3006
+      - RATING_SERVICE_URL=http://rating-service:3005
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - studynotion-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  profile-service:
+    build:
+      context: ./microservices
+      dockerfile: profile-service/Dockerfile
+    container_name: studynotion-profile-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+      - MONGODB_URL=mongodb://${MONGODB_USERNAME:-admin}:${MONGODB_PASSWORD:-password123}@mongodb:27017/${MONGODB_DATABASE:-studynotion}?authSource=admin
+      - MEDIA_SERVICE_URL=http://media-service:3006
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - studynotion-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  rating-service:
+    build:
+      context: ./microservices
+      dockerfile: rating-service/Dockerfile
+    container_name: studynotion-rating-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - MONGODB_URL=mongodb://${MONGODB_USERNAME:-admin}:${MONGODB_PASSWORD:-password123}@mongodb:27017/${MONGODB_DATABASE:-studynotion}?authSource=admin
+      - COURSE_SERVICE_URL=http://course-service:3003
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - studynotion-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  media-service:
+    build:
+      context: ./microservices
+      dockerfile: media-service/Dockerfile
+    container_name: studynotion-media-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
+      - MONGODB_URL=mongodb://${MONGODB_USERNAME:-admin}:${MONGODB_PASSWORD:-password123}@mongodb:27017/${MONGODB_DATABASE:-studynotion}?authSource=admin
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-your-cloud-name}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-your-api-key}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-your-api-secret}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - studynotion-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  notification-service:
+    build:
+      context: ./microservices
+      dockerfile: notification-service/Dockerfile
+    container_name: studynotion-notification-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3007
+      - MONGODB_URL=mongodb://${MONGODB_USERNAME:-admin}:${MONGODB_PASSWORD:-password123}@mongodb:27017/${MONGODB_DATABASE:-studynotion}?authSource=admin
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_USER=${MAIL_USER:-your-email@gmail.com}
+      - MAIL_PASS=${MAIL_PASS:-your-app-password}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - studynotion-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
     build:
       context: ./frontend-microservice
       dockerfile: Dockerfile
     container_name: studynotion-frontend
+    restart: unless-stopped
     ports:
       - "3008:3008"
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - VITE_API_URL=http://api-gateway:3000
-      - VITE_BACKEND_URL=http://api-gateway:3000
+      - NODE_ENV=production
+      - VITE_API_BASE_URL=http://localhost:4000/api/v1
     depends_on:
-      - api-gateway
+      api-gateway:
+        condition: service_healthy
     networks:
       - studynotion-network
-    restart: unless-stopped
-
-  mongo:
-    image: mongo:6.0
-    container_name: studynotion-mongo
-    ports:
-      - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-    volumes:
-      - mongo-data:/data/db
-      - ./microservices/scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    networks:
-      - studynotion-network
-    restart: unless-stopped
-
-  profile-service:
-    build:
-      context: ./microservices/profile-service
-      dockerfile: Dockerfile
-    container_name: studynotion-profile-service
-    ports:
-      - "3004:3004"
-    environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD}@mongo:27017/profile?authSource=admin
-      - JWT_SECRET=${JWT_SECRET}
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
-    depends_on:
-      - mongo
-    networks:
-      - studynotion-network
-    restart: unless-stopped
-
-  rating-service:
-    build:
-      context: ./microservices/rating-service
-      dockerfile: Dockerfile
-    container_name: studynotion-rating-service
-    ports:
-      - "3005:3005"
-    environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD}@mongo:27017/ratings?authSource=admin
-      - JWT_SECRET=${JWT_SECRET}
-      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
-    depends_on:
-      - mongo
-    networks:
-      - studynotion-network
-    restart: unless-stopped
-
-  notification-service:
-    build:
-      context: ./microservices/notification-service
-      dockerfile: Dockerfile
-    container_name: studynotion-notification-service
-    ports:
-      - "3006:3006"
-    environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD}@mongo:27017/notifications?authSource=admin
-      - JWT_SECRET=${JWT_SECRET}
-      - MAIL_HOST=${MAIL_HOST}
-      - MAIL_USER=${MAIL_USER}
-      - MAIL_PASS=${MAIL_PASS}
-      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
-    depends_on:
-      - mongo
-    networks:
-      - studynotion-network
-    restart: unless-stopped
-
-  media-service:
-    build:
-      context: ./microservices/media-service
-      dockerfile: Dockerfile
-    container_name: studynotion-media-service
-    ports:
-      - "3007:3007"
-    environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD}@mongo:27017/media?authSource=admin
-      - JWT_SECRET=${JWT_SECRET}
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3008}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3008}
-    depends_on:
-      - mongo
-    networks:
-      - studynotion-network
-    restart: unless-stopped
-
-volumes:
-  mongo-data:
-    driver: local
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   studynotion-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  mongodb_data:
+    driver: local

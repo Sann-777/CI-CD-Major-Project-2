@@ -13,21 +13,14 @@
     "lint:fix": "eslint . --ext .js --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "build": "echo 'No build needed for Auth Service'",
-    "health": "node healthcheck.js"
+    "build": "echo 'No build needed for Auth Service'"
   },
   "dependencies": {
+    "@studynotion/shared": "file:../shared/studynotion-shared-1.0.0.tgz",
     "bcryptjs": "^2.4.3",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
     "crypto-random-string": "^5.0.0",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "express-rate-limit": "^6.7.0",
     "express-validator": "^6.15.0",
-    "helmet": "^6.1.5",
     "jsonwebtoken": "^9.0.0",
-    "mongoose": "^7.0.3",
     "nodemailer": "^6.9.1",
     "otp-generator": "^4.0.1"
   },

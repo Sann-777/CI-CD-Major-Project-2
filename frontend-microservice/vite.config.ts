@@ -37,15 +37,30 @@ export default defineConfig({
     allowedHosts: 'all', // Allow all hosts for development
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || `http://${getLanIp()}:3000`,
+        target: process.env.VITE_API_URL || process.env.VITE_API_BASE_URL || `http://${getLanIp()}:4000`,
         changeOrigin: true,
         secure: false,
+        ws: true, // Enable WebSocket proxying
+        timeout: 30000,
         configure: (proxy, options) => {
           proxy.on('error', (err, req, res) => {
-            console.log('Proxy error:', err);
+            console.log('Proxy error:', err.message);
+            if (!res.headersSent) {
+              res.writeHead(503, {
+                'Content-Type': 'application/json',
+              });
+              res.end(JSON.stringify({
+                success: false,
+                message: 'API Gateway unavailable',
+                error: 'PROXY_ERROR'
+              }));
+            }
           });
           proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('Proxying request:', req.method, req.url);
+            console.log(`Proxying: ${req.method} ${req.url} -> ${options.target}${req.url}`);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log(`Response: ${req.url} -> ${proxyRes.statusCode}`);
           });
         }
       }
@@ -72,5 +87,10 @@ export default defineConfig({
         }
       }
     }
+  },
+  define: {
+    // Define global constants for runtime
+    __API_BASE_URL__: JSON.stringify(process.env.VITE_API_BASE_URL || `http://${getLanIp()}:4000`),
+    __FRONTEND_URL__: JSON.stringify(process.env.VITE_FRONTEND_URL || `http://${getLanIp()}:3008`)
   }
 })

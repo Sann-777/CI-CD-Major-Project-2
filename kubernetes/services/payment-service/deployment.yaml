@@ -3,75 +3,88 @@ kind: Deployment
 metadata:
   name: payment-service
   labels:
-    app: payment-service
-    component: microservice
+    app: studynotion
+    component: payment-service
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: payment-service
+      app: studynotion
+      component: payment-service
   template:
     metadata:
       labels:
-        app: payment-service
-        component: microservice
+        app: studynotion
+        component: payment-service
     spec:
       containers:
-      - name: payment-service
-        image: asxhazard/studynotion-payment-service:latest
-        ports:
-        - containerPort: 3002
-        env:
-        - name: NODE_ENV
-          valueFrom:
-            configMapKeyRef:
-              name: studynotion-config
-              key: NODE_ENV
-        - name: PORT
-          value: "3002"
-        - name: MONGODB_URI
-          valueFrom:
-            configMapKeyRef:
-              name: studynotion-config
-              key: MONGODB_URI_PAYMENT
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: studynotion-secrets
-              key: JWT_SECRET
-        - name: RAZORPAY_KEY_ID
-          valueFrom:
-            configMapKeyRef:
-              name: studynotion-config
-              key: RAZORPAY_KEY_ID
-        - name: RAZORPAY_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: studynotion-secrets
-              key: RAZORPAY_KEY_SECRET
-        - name: FRONTEND_URL
-          valueFrom:
-            configMapKeyRef:
-              name: studynotion-config
-              key: API_BASE_URL
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3002
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3002
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          timeoutSeconds: 5
+        - name: payment-service
+          image: asxhazard/studynotion-payment-service:latest
+          ports:
+            - containerPort: 3002
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: studynotion-config
+                  key: NODE_ENV
+            - name: PORT
+              value: '3002'
+            - name: MONGODB_URL
+              value: 'mongodb://$(MONGODB_USERNAME):$(MONGODB_PASSWORD)@mongodb:27017/$(MONGODB_DATABASE)?authSource=admin'
+            - name: MONGODB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-credentials
+                  key: MONGODB_USERNAME
+            - name: MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-credentials
+                  key: MONGODB_PASSWORD
+            - name: MONGODB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: studynotion-config
+                  key: MONGODB_DATABASE
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: JWT_SECRET
+            - name: RAZORPAY_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: razorpay-credentials
+                  key: RAZORPAY_KEY
+            - name: RAZORPAY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: razorpay-credentials
+                  key: RAZORPAY_SECRET
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: studynotion-config
+                  key: FRONTEND_URL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3002
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5

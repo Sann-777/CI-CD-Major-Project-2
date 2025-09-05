@@ -3,14 +3,15 @@ kind: Service
 metadata:
   name: notification-service
   labels:
-    app: notification-service
-    component: microservice
+    app: studynotion
+    component: notification-service
 spec:
   type: ClusterIP
   ports:
-  - port: 3006
-    targetPort: 3006
-    protocol: TCP
-    name: http
+    - port: 3007
+      targetPort: 3007
+      protocol: TCP
+      name: http
   selector:
-    app: notification-service
+    app: studynotion
+    component: notification-service

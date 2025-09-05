@@ -1,37 +1,53 @@
-FROM node:20-alpine
+# Multi-stage build for React Frontend
+# Stage 1: Build the React application
+FROM node:18-alpine AS build
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files for dependency installation
 COPY package*.json ./
 
-# Install all dependencies (including dev dependencies for build)
-RUN npm ci --only=production
+# Install all dependencies (including devDependencies for build)
+RUN npm install && npm cache clean --force
 
 # Copy source code
 COPY . .
 
-# Install curl for health check
-RUN apk add --no-cache curl
+# Build the application
+RUN npm run build
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+# Stage 2: Production image with Nginx
+FROM nginx:alpine AS production
 
-# Change ownership of the app directory
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+# Install wget for health checks
+RUN apk add --no-cache wget
+
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy built application from build stage
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nginx && \
+    adduser -S nginx -u 1001 -G nginx
+
+# Change ownership of nginx directories
+RUN chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    chown -R nginx:nginx /etc/nginx/conf.d && \
+    chown -R nginx:nginx /usr/share/nginx/html
+
+# Switch to non-root user
+USER nginx
 
 # Expose port
 EXPOSE 3008
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3008 || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3008/ || exit 1
 
-# Set Node.js options to increase memory limit and optimize esbuild
-ENV NODE_OPTIONS="--max-old-space-size=2048"
-ENV VITE_ESBUILD_TARGET="es2020"
-
-# Start the development server on port 3008 with optimizations
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3008", "--force"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

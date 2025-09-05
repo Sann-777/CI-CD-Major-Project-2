@@ -1,4 +1,4 @@
-const ServerConfig = require('../shared/config/serverConfig');
+const ServerConfig = require('@studynotion/shared/config/serverConfig');
 const courseRoutes = require('./routes/course');
 const categoryRoutes = require('./routes/category');
 const { errorHandler } = require('./middleware/errorHandler');

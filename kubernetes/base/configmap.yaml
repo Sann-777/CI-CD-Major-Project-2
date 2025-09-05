@@ -1,40 +1,228 @@
+# ConfigMap for StudyNotion application environment variables
+# Contains non-sensitive configuration data for all microservices
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: studynotion-config
+  namespace: default
+  labels:
+    app: studynotion
+    component: config
 data:
-  NODE_ENV: production
+  # Global Configuration
+  NODE_ENV: "production"
   
-  # MongoDB URIs
-  MONGODB_URI_AUTH: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/auth"
-  MONGODB_URI_COURSE: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/course"
-  MONGODB_URI_PAYMENT: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/payment"
-  MONGODB_URI_PROFILE: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/profile"
-  MONGODB_URI_RATING: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/rating"
-  MONGODB_URI_MEDIA: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/media"
-  MONGODB_URI_NOTIFICATION: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/notification"
+  # Database Configuration
+  MONGODB_DATABASE: "studynotion"
+  MONGODB_HOST: "mongodb-service"
+  MONGODB_PORT: "27017"
   
-  # API Gateway Configuration
-  API_GATEWAY_PORT: "3000"
-  API_GATEWAY_URL: "http://api-gateway.studynotion.svc.cluster.local:3000"
+  # Service URLs for inter-service communication
+  API_GATEWAY_URL: "http://api-gateway-service:4000"
+  AUTH_SERVICE_URL: "http://auth-service:3001"
+  PAYMENT_SERVICE_URL: "http://payment-service:3002"
+  COURSE_SERVICE_URL: "http://course-service:3003"
+  PROFILE_SERVICE_URL: "http://profile-service:3004"
+  RATING_SERVICE_URL: "http://rating-service:3005"
+  MEDIA_SERVICE_URL: "http://media-service:3006"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:3007"
+  FRONTEND_URL: "http://frontend-service:3008"
   
-  # Service URLs
-  AUTH_SERVICE_URL: "http://auth-service.studynotion.svc.cluster.local:3001"
-  COURSE_SERVICE_URL: "http://course-service.studynotion.svc.cluster.local:3003"
-  PAYMENT_SERVICE_URL: "http://payment-service.studynotion.svc.cluster.local:3002"
-  PROFILE_SERVICE_URL: "http://profile-service.studynotion.svc.cluster.local:3004"
-  RATING_SERVICE_URL: "http://rating-service.studynotion.svc.cluster.local:3005"
-  MEDIA_SERVICE_URL: "http://media-service.studynotion.svc.cluster.local:3007"
-  NOTIFICATION_SERVICE_URL: "http://notification-service.studynotion.svc.cluster.local:3006"
+  # Service Ports
+  API_GATEWAY_PORT: "4000"
+  AUTH_SERVICE_PORT: "3001"
+  PAYMENT_SERVICE_PORT: "3002"
+  COURSE_SERVICE_PORT: "3003"
+  PROFILE_SERVICE_PORT: "3004"
+  RATING_SERVICE_PORT: "3005"
+  MEDIA_SERVICE_PORT: "3006"
+  NOTIFICATION_SERVICE_PORT: "3007"
+  FRONTEND_PORT: "3008"
   
-  # Frontend Configuration
-  API_BASE_URL: "https://api.studynotion.example.com"
-  FRONTEND_URL: "https://studynotion.example.com"
-  
-  # Mail Configuration
+  # Email Configuration (non-sensitive)
   MAIL_HOST: "smtp.gmail.com"
   MAIL_PORT: "587"
+  MAIL_SECURE: "false"
   
-  # External Services
-  CLOUDINARY_CLOUD_NAME: "studynotion-cloud"
-  RAZORPAY_KEY_ID: "rzp_test_your_key_id"
+  # Security Configuration
+  BCRYPT_SALT_ROUNDS: "12"
+  
+  # CORS Configuration
+  CORS_ORIGIN: "http://localhost:3008,https://studynotion.example.com"
+  
+  # File Upload Configuration
+  MAX_FILE_SIZE: "10485760"  # 10MB in bytes
+  ALLOWED_FILE_TYPES: "image/jpeg,image/png,image/gif,video/mp4,application/pdf"
+  
+  # Pagination Configuration
+  DEFAULT_PAGE_SIZE: "10"
+  MAX_PAGE_SIZE: "100"
+  
+  # Cache Configuration
+  CACHE_TTL: "3600"  # 1 hour in seconds
+  
+  # Rate Limiting Configuration
+  RATE_LIMIT_WINDOW: "900000"  # 15 minutes in milliseconds
+  RATE_LIMIT_MAX_REQUESTS: "100"
+  
+  # Health Check Configuration
+  HEALTH_CHECK_INTERVAL: "30"
+  HEALTH_CHECK_TIMEOUT: "5"
+  
+  # Logging Configuration
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+  
+  # Frontend API Configuration
+  VITE_API_BASE_URL: "http://localhost:4000/api/v1"
+  VITE_APP_NAME: "StudyNotion"
+  VITE_APP_VERSION: "1.0.0"
+
+---
+# ConfigMap for MongoDB initialization scripts
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-init-config
+  namespace: default
+  labels:
+    app: studynotion
+    component: database
+data:
+  init-mongo.js: |
+    // MongoDB initialization script
+    // Create database and collections with proper indexes
+    
+    db = db.getSiblingDB('studynotion');
+    
+    // Create collections
+    db.createCollection('users');
+    db.createCollection('courses');
+    db.createCollection('payments');
+    db.createCollection('ratings');
+    db.createCollection('media');
+    db.createCollection('notifications');
+    db.createCollection('otps');
+    db.createCollection('profiles');
+    
+    // Create indexes for better performance
+    
+    // Users collection indexes
+    db.users.createIndex({ "email": 1 }, { unique: true });
+    db.users.createIndex({ "accountType": 1 });
+    db.users.createIndex({ "createdAt": 1 });
+    
+    // Courses collection indexes
+    db.courses.createIndex({ "instructor": 1 });
+    db.courses.createIndex({ "category": 1 });
+    db.courses.createIndex({ "status": 1 });
+    db.courses.createIndex({ "createdAt": -1 });
+    db.courses.createIndex({ "title": "text", "description": "text" });
+    
+    // Payments collection indexes
+    db.payments.createIndex({ "user": 1 });
+    db.payments.createIndex({ "course": 1 });
+    db.payments.createIndex({ "razorpayOrderId": 1 }, { unique: true });
+    db.payments.createIndex({ "createdAt": -1 });
+    
+    // Ratings collection indexes
+    db.ratings.createIndex({ "course": 1 });
+    db.ratings.createIndex({ "user": 1 });
+    db.ratings.createIndex({ "course": 1, "user": 1 }, { unique: true });
+    
+    // Media collection indexes
+    db.media.createIndex({ "uploadedBy": 1 });
+    db.media.createIndex({ "fileType": 1 });
+    db.media.createIndex({ "createdAt": -1 });
+    
+    // Notifications collection indexes
+    db.notifications.createIndex({ "recipient": 1 });
+    db.notifications.createIndex({ "type": 1 });
+    db.notifications.createIndex({ "createdAt": -1 });
+    
+    // OTPs collection indexes (with TTL for automatic cleanup)
+    db.otps.createIndex({ "email": 1 });
+    db.otps.createIndex({ "createdAt": 1 }, { expireAfterSeconds: 300 }); // 5 minutes TTL
+    
+    // Profiles collection indexes
+    db.profiles.createIndex({ "user": 1 }, { unique: true });
+    
+    print('Database initialization completed successfully');
+
+---
+# ConfigMap for Nginx configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: default
+  labels:
+    app: studynotion
+    component: frontend
+data:
+  default.conf: |
+    # Nginx configuration for React frontend
+    server {
+        listen 3008;
+        server_name localhost;
+        
+        # Root directory for static files
+        root /usr/share/nginx/html;
+        index index.html;
+        
+        # Gzip compression
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_proxied expired no-cache no-store private must-revalidate auth;
+        gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+        
+        # Security headers
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "no-referrer-when-downgrade" always;
+        add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+        
+        # Cache static assets
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            try_files $uri =404;
+        }
+        
+        # API proxy to backend services
+        location /api/ {
+            proxy_pass http://api-gateway-service:4000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
+            proxy_connect_timeout 60s;
+            proxy_send_timeout 60s;
+            proxy_read_timeout 60s;
+        }
+        
+        # Handle React Router (SPA routing)
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+        
+        # Health check endpoint
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+        
+        # Error pages
+        error_page 404 /index.html;
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+            root /usr/share/nginx/html;
+        }
+    }

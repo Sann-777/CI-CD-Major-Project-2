@@ -1,22 +1,48 @@
-FROM node:20-alpine
+# Multi-stage build for Payment service
+# Stage 1: Build dependencies
+FROM node:18-alpine AS dependencies
 
+# Install git and openssh for npm dependencies
+RUN apk add --no-cache git openssh
+
+# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy shared module first
+COPY shared/ ./shared/
 
-# Install dependencies
-RUN npm ci --only=production
+# Copy package files for dependency installation
+COPY payment-service/package*.json ./
 
-# Copy source code
-COPY . .
+# Install shared module and dependencies
+RUN cd shared && \
+    TARBALL_NAME=$(npm pack | tail -1) && \
+    cd .. && \
+    npm install "file:./shared/$TARBALL_NAME" && \
+    npm install --omit=dev && \
+    npm cache clean --force
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+# Stage 2: Production image
+FROM node:18-alpine AS production
 
-# Change ownership of the app directory
-RUN chown -R nodejs:nodejs /app
+# Install git and openssh for npm dependencies
+RUN apk add --no-cache git openssh wget
+
+# Create app user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy dependencies from build stage
+COPY --from=dependencies --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=dependencies --chown=nodejs:nodejs /app/package*.json ./
+
+# Copy application code
+COPY --chown=nodejs:nodejs payment-service/ ./
+
+# Switch to non-root user
 USER nodejs
 
 # Expose port
@@ -24,7 +50,7 @@ EXPOSE 3002
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node healthcheck.js
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3002/health || exit 1
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

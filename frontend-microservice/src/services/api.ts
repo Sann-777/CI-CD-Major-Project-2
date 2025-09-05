@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 const getApiBaseUrl = () => {
   // Check if we have environment variable first
   const envUrl = (import.meta as any).env?.VITE_API_BASE_URL;
-  if (envUrl && envUrl !== 'http://localhost:3000') {
+  if (envUrl && envUrl !== 'http://localhost:4000') {
     return envUrl;
   }
   
@@ -14,11 +14,11 @@ const getApiBaseUrl = () => {
   
   // If accessing via localhost, use localhost for API
   if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
-    return 'http://localhost:3000';
+    return 'http://localhost:4000';
   }
   
   // If accessing via LAN IP, use same IP for API
-  return `http://${currentHost}:3000`;
+  return `http://${currentHost}:4000`;
 };
 
 // Base API configuration
@@ -199,7 +199,6 @@ export const checkServiceHealth = async () => {
     const response = await apiConnector.get(endpoints.SERVICES.HEALTH_CHECK_API);
     return response.data;
   } catch (error) {
-    console.error('Health check failed:', error);
     throw error;
   }
 };
@@ -210,7 +209,6 @@ export const getAvailableServices = async () => {
     const response = await apiConnector.get(endpoints.SERVICES.GET_SERVICES_API);
     return response.data;
   } catch (error) {
-    console.error('Failed to get services:', error);
     throw error;
   }
 };

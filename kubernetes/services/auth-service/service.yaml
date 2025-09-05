@@ -1,10 +1,13 @@
+# Auth Service
+# Provides internal network endpoint for authentication service
 apiVersion: v1
 kind: Service
 metadata:
   name: auth-service
+  namespace: default
   labels:
-    app: auth-service
-    component: microservice
+    app: studynotion
+    component: auth-service
 spec:
   type: ClusterIP
   ports:
@@ -13,4 +16,5 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: auth-service
+    app: studynotion
+    component: auth-service

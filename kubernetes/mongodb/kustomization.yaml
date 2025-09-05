@@ -13,5 +13,5 @@ labels:
 
 # Add common annotations to all resources
 commonAnnotations:
-  description: "StudyNotion - MongoDB Database"
-  version: "1.0.0"
+  description: 'StudyNotion - MongoDB Database'
+  version: '1.0.0'

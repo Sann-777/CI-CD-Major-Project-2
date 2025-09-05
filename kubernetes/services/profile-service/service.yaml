@@ -3,14 +3,15 @@ kind: Service
 metadata:
   name: profile-service
   labels:
-    app: profile-service
-    component: microservice
+    app: studynotion
+    component: profile-service
 spec:
   type: ClusterIP
   ports:
-  - port: 3004
-    targetPort: 3004
-    protocol: TCP
-    name: http
+    - port: 3004
+      targetPort: 3004
+      protocol: TCP
+      name: http
   selector:
-    app: profile-service
+    app: studynotion
+    component: profile-service

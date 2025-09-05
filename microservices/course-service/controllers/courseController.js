@@ -4,6 +4,7 @@ const Section = require('../models/Section');
 const SubSection = require('../models/SubSection');
 const CourseProgress = require('../models/CourseProgress');
 const axios = require('axios');
+const FormData = require('form-data');
 
 // Constants
 const DEFAULT_STATUS = 'Draft';

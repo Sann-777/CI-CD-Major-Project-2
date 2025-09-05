@@ -1,4 +1,4 @@
-const ServerConfig = require('../shared/config/serverConfig');
+const ServerConfig = require('@studynotion/shared/config/serverConfig');
 const paymentRoutes = require('./routes/payment');
 const { errorHandler } = require('./middleware/errorHandler');
 
@@ -7,9 +7,7 @@ const server = new ServerConfig('payment-service', 3002);
 const app = server.getApp();
 
 // Connect to database
-server.connectToDatabase('payments')
-  .then(() => console.log('Payment Service: Connected to MongoDB'))
-  .catch(err => console.error('Payment Service: MongoDB connection error:', err));
+server.connectToDatabase('payments');
 
 // Routes
 app.use('/api/v1/payment', paymentRoutes);
