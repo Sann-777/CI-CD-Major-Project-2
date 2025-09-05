@@ -23,9 +23,30 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:3008',
+  'https://studynotion.example.com',
+  'http://studynotion.example.com',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3008',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list or matches LAN IP pattern
+    if (allowedOrigins.includes(origin) || 
+        /^https?:\/\/192\.168\.\d+\.\d+:3008$/.test(origin) ||
+        /^https?:\/\/10\.\d+\.\d+\.\d+:3008$/.test(origin) ||
+        /^https?:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+:3008$/.test(origin)) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
+  optionsSuccessStatus: 200
 }));
 
 // Body parsing middleware

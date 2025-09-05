@@ -1,8 +1,28 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
 
+// Dynamic API base URL configuration
+const getApiBaseUrl = () => {
+  // Check if we have environment variable first
+  const envUrl = (import.meta as any).env?.VITE_API_BASE_URL;
+  if (envUrl && envUrl !== 'http://localhost:3000') {
+    return envUrl;
+  }
+  
+  // Get current host
+  const currentHost = window.location.hostname;
+  
+  // If accessing via localhost, use localhost for API
+  if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
+    return 'http://localhost:3000';
+  }
+  
+  // If accessing via LAN IP, use same IP for API
+  return `http://${currentHost}:3000`;
+};
+
 // Base API configuration
-const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3000';
+const BASE_URL = getApiBaseUrl();
 
 // Create axios instance
 const apiConnector: AxiosInstance = axios.create({

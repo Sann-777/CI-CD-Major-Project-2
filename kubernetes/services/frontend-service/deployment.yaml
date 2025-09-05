@@ -48,14 +48,14 @@ spec:
             memory: 512Mi
         livenessProbe:
           httpGet:
-            path: /
+            path: /health
             port: 3008
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
         readinessProbe:
           httpGet:
-            path: /
+            path: /health
             port: 3008
           initialDelaySeconds: 5
           periodSeconds: 10
