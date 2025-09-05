@@ -4,13 +4,15 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const fileUpload = require('express-fileupload');
 require('dotenv').config();
+const ServerConfig = require('../shared/config/serverConfig');
 
 const mediaRoutes = require('./routes/media');
 const { errorHandler } = require('./middleware/errorHandler');
 const { cloudinaryConnect } = require('./config/cloudinary');
 
-const app = express();
-const PORT = process.env.PORT || 3007;
+// Create server instance
+const server = new ServerConfig('media-service', 3006);
+const app = server.getApp();
 
 // Connect to Cloudinary
 cloudinaryConnect();
@@ -36,6 +38,7 @@ app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: '/tmp/',
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
+  createParentPath: true
 }));
 
 // Body parsing middleware
@@ -46,25 +49,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1/media', mediaRoutes);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    service: 'media-service',
-    status: 'healthy',
-    timestamp: new Date().toISOString()
-  });
-});
+server.addHealthCheck();
 
 // Error handling middleware
-app.use(errorHandler);
+server.addErrorHandler(errorHandler);
 
 // 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
-  });
-});
+server.add404Handler();
 
-app.listen(PORT, () => {
-  console.log(`Media Service running on port ${PORT}`);
-});
+// Start server
+server.start();
