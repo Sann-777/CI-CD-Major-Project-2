@@ -6,13 +6,13 @@ data:
   NODE_ENV: production
   
   # MongoDB URIs
-  MONGODB_URI_AUTH: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/auth"
-  MONGODB_URI_COURSE: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/course"
-  MONGODB_URI_PAYMENT: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/payment"
-  MONGODB_URI_PROFILE: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/profile"
-  MONGODB_URI_RATING: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/rating"
-  MONGODB_URI_MEDIA: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/media"
-  MONGODB_URI_NOTIFICATION: "mongodb://mongodb-0.mongodb-headless.studynotion.svc.cluster.local:27017/notification"
+  MONGODB_URI_AUTH: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/auth"
+  MONGODB_URI_COURSE: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/course"
+  MONGODB_URI_PAYMENT: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/payment"
+  MONGODB_URI_PROFILE: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/profile"
+  MONGODB_URI_RATING: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/rating"
+  MONGODB_URI_MEDIA: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/media"
+  MONGODB_URI_NOTIFICATION: "mongodb://mongodb-0.mongodb.studynotion.svc.cluster.local:27017/notification"
   
   # API Gateway Configuration
   API_GATEWAY_PORT: "3000"

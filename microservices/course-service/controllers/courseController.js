@@ -292,6 +292,62 @@ exports.getCourseDetails = async (req, res) => {
   }
 };
 
+// Get full course details (authenticated user)
+exports.getFullCourseDetails = async (req, res) => {
+  try {
+    const { courseId } = req.body;
+    const userId = req.user.id;
+
+    if (!courseId) {
+      return res.status(400).json(
+        createErrorResponse('Course ID is required')
+      );
+    }
+
+    const course = await Course.findById(courseId)
+      .populate({
+        path: 'instructor',
+        select: 'firstName lastName email image',
+      })
+      .populate('category')
+      .populate('ratingAndReviews')
+      .populate({
+        path: 'courseContent',
+        populate: {
+          path: 'subSection',
+        },
+      })
+      .lean();
+
+    if (!course) {
+      return res.status(404).json(
+        createErrorResponse('Course not found')
+      );
+    }
+
+    // Get course progress for the user
+    let courseProgress = null;
+    if (userId) {
+      courseProgress = await CourseProgress.findOne({
+        courseID: courseId,
+        userId: userId,
+      });
+    }
+
+    return res.status(200).json(
+      createSuccessResponse({ 
+        course,
+        courseProgress: courseProgress ? courseProgress.completedVideos : []
+      }, 'Full course details retrieved successfully')
+    );
+
+  } catch (error) {
+    return res.status(500).json(
+      createErrorResponse('Failed to retrieve full course details')
+    );
+  }
+};
+
 // Get instructor courses
 exports.getInstructorCourses = async (req, res) => {
   try {
