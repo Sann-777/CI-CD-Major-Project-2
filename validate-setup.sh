@@ -47,7 +47,7 @@ check_file "TESTING_AND_LINTING_SETUP.md"
 echo -e "\n${BLUE}🔧 Microservices Configuration${NC}"
 echo "------------------------------"
 
-SERVICES=("api-gateway" "auth-service" "course-service" "payment-service" "profile-service" "rating-service" "media-service" "notification-service")
+SERVICES=("api-gateway" "auth-service" "course-service" "profile-service" "rating-service" "media-service" "notification-service")
 
 for service in "${SERVICES[@]}"; do
     echo -e "\n${YELLOW}$service:${NC}"

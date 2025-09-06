@@ -15,19 +15,17 @@ The platform consists of:
 - **Port**: 3008 (Development), 80/443 (Production)
 
 ### Backend (Microservices Architecture)
-- **API Gateway**: Express.js proxy server (Port 3000)
+- **API Gateway**: Express.js proxy server (Port 4000)
 - **Auth Service**: JWT authentication & authorization (Port 3001)
-- **Profile Service**: User profile management (Port 3002)
 - **Course Service**: Course management & content (Port 3003)
-- **Payment Service**: Razorpay integration (Port 3004)
+- **Profile Service**: User profile management (Port 3004)
 - **Rating Service**: Reviews & ratings (Port 3005)
-- **Notification Service**: Email & push notifications (Port 3006)
-- **Media Service**: Cloudinary integration (Port 3007)
+- **Media Service**: Cloudinary integration (Port 3006)
+- **Notification Service**: Email & push notifications (Port 3007)
 
 ### Infrastructure & DevOps
 - **Database**: MongoDB with separate databases per service
 - **Media Storage**: Cloudinary
-- **Payment Gateway**: Razorpay
 - **Email Service**: Nodemailer
 - **Containerization**: Docker + Docker Compose
 - **Orchestration**: Kubernetes
@@ -114,9 +112,6 @@ CLOUD_NAME=your-cloudinary-name
 API_KEY=your-cloudinary-key
 API_SECRET=your-cloudinary-secret
 
-# Razorpay (for payment service)
-RAZORPAY_KEY=your-razorpay-key
-RAZORPAY_SECRET=your-razorpay-secret
 
 # Service Discovery
 SERVICE_REGISTRY_URL=http://localhost:4000/api/services
@@ -479,7 +474,7 @@ pipeline {
                 stage('Backend Dependencies') {
                     steps {
                         script {
-                            def services = ['api-gateway', 'auth-service', 'course-service', 'payment-service']
+                            def services = ['api-gateway', 'auth-service', 'course-service']
                             services.each { service ->
                                 dir("microservices/${service}") {
                                     sh 'npm ci'
@@ -503,7 +498,7 @@ pipeline {
                 stage('Lint Backend') {
                     steps {
                         script {
-                            def services = ['api-gateway', 'auth-service', 'course-service', 'payment-service']
+                            def services = ['api-gateway', 'auth-service', 'course-service']
                             services.each { service ->
                                 dir("microservices/${service}") {
                                     sh 'npm run lint || true'
@@ -521,7 +516,7 @@ pipeline {
                             }
                             
                             // Backend security scan
-                            def services = ['api-gateway', 'auth-service', 'course-service', 'payment-service']
+                            def services = ['api-gateway', 'auth-service', 'course-service']
                             services.each { service ->
                                 dir("microservices/${service}") {
                                     sh 'npm audit --audit-level moderate || true'
@@ -557,7 +552,7 @@ pipeline {
                 stage('Backend Tests') {
                     steps {
                         script {
-                            def services = ['api-gateway', 'auth-service', 'course-service', 'payment-service']
+                            def services = ['api-gateway', 'auth-service', 'course-service']
                             services.each { service ->
                                 dir("microservices/${service}") {
                                     sh 'npm test || true'
@@ -617,7 +612,7 @@ pipeline {
                 stage('Build Backend Services') {
                     steps {
                         script {
-                            def services = ['api-gateway', 'auth-service', 'course-service', 'payment-service']
+                            def services = ['api-gateway', 'auth-service', 'course-service']
                             services.each { service ->
                                 dir("microservices/${service}") {
                                     def serviceImage = docker.build(
@@ -646,7 +641,7 @@ pipeline {
             steps {
                 script {
                     // Update Kubernetes manifests with new image tags
-                    def services = ['frontend', 'api-gateway', 'auth-service', 'course-service', 'payment-service']
+                    def services = ['frontend', 'api-gateway', 'auth-service', 'course-service']
                     services.each { service ->
                         sh """
                             sed -i 's|${DOCKER_REGISTRY}/${DOCKER_REPO}/${service}:.*|${DOCKER_REGISTRY}/${DOCKER_REPO}/${service}:${BUILD_TAG}|g' \
@@ -808,7 +803,6 @@ studynotion-gitops/
 │   │   ├── api-gateway/
 │   │   ├── auth-service/
 │   │   ├── course-service/
-│   │   ├── payment-service/
 │   │   └── frontend/
 │   └── overlays/
 │       ├── dev/
@@ -904,7 +898,6 @@ resources:
 - api-gateway/
 - auth-service/
 - course-service/
-- payment-service/
 - frontend/
 
 commonLabels:
@@ -929,8 +922,6 @@ images:
 - name: your-registry.com/studynotion/auth-service
   newTag: latest
 - name: your-registry.com/studynotion/course-service
-  newTag: latest
-- name: your-registry.com/studynotion/payment-service
   newTag: latest
 - name: your-registry.com/studynotion/frontend
   newTag: latest
@@ -1382,7 +1373,6 @@ studynotion-edtech-project-main/
 │   ├── api-gateway/              # API Gateway
 │   ├── auth-service/             # Authentication
 │   ├── course-service/           # Course management
-│   ├── payment-service/          # Payment processing
 │   ├── k8s/                      # Kubernetes configs
 │   └── docker-compose.yml
 ├── .github/workflows/            # CI/CD pipelines

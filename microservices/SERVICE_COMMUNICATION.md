@@ -24,8 +24,8 @@ This document outlines how the microservices communicate with each other and wit
             └───────────────┘   └───────────────┘
                     ▼                   ▼
             ┌───────────────┐   ┌───────────────┐
-            │Payment Service│   │ Other Services│
-            │ (Port 4003)   │   │               │
+            │ Other Services│   │ More Services │
+            │               │   │               │
             └───────────────┘   └───────────────┘
 ```
 
@@ -65,15 +65,15 @@ const response = await apiClient.post('/auth/login', {
 
 #### Example Service Communication:
 ```javascript
-// Payment Service calling Course Service
-const courseResponse = await axios.get(
-  `${process.env.API_GATEWAY_URL}/course/getCourseDetails`,
+// Course Service calling Auth Service
+const userResponse = await axios.get(
+  `${process.env.API_GATEWAY_URL}/auth/getUserDetails`,
   {
     headers: {
       'Authorization': `Bearer ${serviceToken}`,
-      'X-Service-Name': 'payment-service'
+      'X-Service-Name': 'course-service'
     },
-    data: { courseId }
+    data: { userId }
   }
 );
 ```
@@ -84,7 +84,6 @@ Each service has its own dedicated MongoDB database:
 
 - **Auth Service**: `studynotion_auth_db`
 - **Course Service**: `studynotion_course_db`
-- **Payment Service**: `studynotion_payment_db`
 
 **Connection Pattern**:
 ```javascript
@@ -105,7 +104,6 @@ const routes = {
   '/api/v1/auth/*': 'http://auth-service:4001',
   '/api/v1/course/*': 'http://course-service:4002', 
   '/api/v1/category/*': 'http://course-service:4002',
-  '/api/v1/payment/*': 'http://payment-service:4003'
 };
 ```
 
@@ -232,18 +230,16 @@ Frontend → API Gateway → Auth Service
                    Return Success
 ```
 
-### 2. Course Purchase Flow
+### 2. Course Enrollment Flow
 
 ```
-Frontend → API Gateway → Payment Service
+Frontend → API Gateway → Course Service
                       ↓
-                   Validate Course (Course Service)
+                   Validate User (Auth Service)
                       ↓
-                   Process Payment (Razorpay)
+                   Enroll User in Course
                       ↓
-                   Enroll User (Course Service)
-                      ↓
-                   Send Email (Auth Service)
+                   Send Email (Notification Service)
                       ↓
                    Return Success
 ```

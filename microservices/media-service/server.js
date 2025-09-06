@@ -58,7 +58,7 @@ app.get('/health', (req, res) => {
 // Connect to MongoDB
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/studynotion-media';
+    const mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI || 'mongodb://localhost:27017/studynotion-media';
     await mongoose.connect(mongoURI);
     console.log('Media Service: Connected to MongoDB');
   } catch (error) {

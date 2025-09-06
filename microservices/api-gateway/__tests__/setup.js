@@ -36,7 +36,6 @@ process.env.PORT = '0' // Use random available port for tests
 // Service URLs for testing
 process.env.AUTH_SERVICE_URL = 'http://localhost:3001'
 process.env.COURSE_SERVICE_URL = 'http://localhost:3003'
-process.env.PAYMENT_SERVICE_URL = 'http://localhost:3002'
 process.env.PROFILE_SERVICE_URL = 'http://localhost:3004'
 process.env.RATING_SERVICE_URL = 'http://localhost:3005'
 process.env.MEDIA_SERVICE_URL = 'http://localhost:3006'

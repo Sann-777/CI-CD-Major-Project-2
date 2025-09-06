@@ -46,13 +46,13 @@ curl http://localhost:3000/health
         ┌───────────────────────┼───────────────────────┐
         │                       │                       │
 ┌───────▼──────┐    ┌───────────▼──────┐    ┌──────────▼─────┐
-│ Auth Service │    │  Course Service  │    │ Payment Service│
+│ Auth Service │    │  Course Service  │    │ Payment Service │
 │ Port: 3001   │    │  Port: 3003      │    │ Port: 3004     │
 └──────────────┘    └──────────────────┘    └────────────────┘
         │                       │                       │
 ┌───────▼──────┐    ┌───────────▼──────┐    ┌──────────▼─────┐
 │   MongoDB    │    │    MongoDB       │    │    MongoDB     │
-│   Auth DB    │    │   Courses DB     │    │  Payments DB   │
+│   Auth DB    │    │   Courses DB     │    │  Payment DB   │
 └──────────────┘    └──────────────────┘    └────────────────┘
 ```
 
@@ -81,9 +81,9 @@ curl http://localhost:3000/health
 - `POST /api/v1/category/createCategory` - Create category (Admin)
 
 ### Payment Service (Port 3004)
-- `POST /api/v1/payment/capturePayment` - Initiate payment (Student)
-- `POST /api/v1/payment/verifyPayment` - Verify payment (Student)
-- `GET /api/v1/payment/paymentHistory` - Payment history (Student)
+- `POST /api/v1/payment/capture` - Initiate payment (Student)
+- `POST /api/v1/payment/verify` - Verify payment (Student)
+- `GET /api/v1/payment/History` - Payment history (Student)
 
 ## 🔧 Configuration
 
@@ -95,8 +95,8 @@ JWT_SECRET=your_jwt_secret
 MAIL_HOST=smtp.gmail.com
 MAIL_USER=your_email@gmail.com
 MAIL_PASS=your_app_password
-RAZORPAY_KEY=your_razorpay_key
-RAZORPAY_SECRET=your_razorpay_secret
+PAYMENT_KEY=your_payment_key
+PAYMENT_SECRET=your_payment_secret
 ```
 
 #### Service-Specific

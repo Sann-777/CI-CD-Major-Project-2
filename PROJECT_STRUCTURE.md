@@ -54,7 +54,6 @@ studynotion-edtech-project-main/
 - **API Gateway**: Request routing and load balancing (Port 3000)
 - **Auth Service**: JWT authentication & authorization (Port 3001)
 - **Course Service**: Course management & content (Port 3003)
-- **Payment Service**: Razorpay integration (Port 3004)
 
 ### **Legacy Monolithic (Reference Only)**
 - **Frontend**: Original React app (Port 3000)
