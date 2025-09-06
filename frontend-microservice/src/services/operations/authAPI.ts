@@ -113,19 +113,23 @@ export function login(email: string, password: string, navigate: any) {
       toast.dismiss(toastId)
       let errorMessage = 'Login Failed'
       
+      // Priority order: backend message > specific status message > generic fallback
       if (error.response?.data?.message) {
+        // Use the specific backend error message
         errorMessage = error.response.data.message
-      } else if (error.message) {
-        errorMessage = error.message
-      }
-      
-      // Handle specific error cases
-      if (error.response?.status === 401) {
-        errorMessage = 'Invalid email or password'
-      } else if (error.response?.status === 404) {
-        errorMessage = 'User not found. Please check your email.'
-      } else if (error.response?.status === 400) {
-        errorMessage = 'Please provide valid email and password'
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error
+      } else {
+        // Only use fallback messages if no backend message exists
+        if (error.response?.status === 401) {
+          errorMessage = 'Invalid email or password'
+        } else if (error.response?.status === 404) {
+          errorMessage = 'User not found. Please check your email.'
+        } else if (error.response?.status === 400) {
+          errorMessage = 'Please provide valid email and password'
+        } else if (error.message) {
+          errorMessage = error.message
+        }
       }
       
       toast.error(errorMessage)

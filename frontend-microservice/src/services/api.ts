@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 // Base API configuration
-const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3000';
+const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:4000';
 
 // Create axios instance
 const apiConnector: AxiosInstance = axios.create({
@@ -32,7 +32,8 @@ apiConnector.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    // Only redirect on 401 if it's NOT a login attempt
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
