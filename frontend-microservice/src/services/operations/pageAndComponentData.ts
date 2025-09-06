@@ -1,12 +1,12 @@
 import { toast } from 'react-hot-toast'
-import { apiConnector } from '../apiConnector'
+import { apiCall } from '../api'
 import { categories } from '../apis'
 
 export const getCatalogPageData = async (categoryId: string) => {
   const toastId = toast.loading("Loading...")
   let result = []
   try {
-    const response = await apiConnector("POST", categories.CATEGORY_PAGE_DETAILS_API, {
+    const response = await apiCall('POST', categories.CATEGORY_PAGE_DETAILS_API, {
       categoryId: categoryId,
     })
 

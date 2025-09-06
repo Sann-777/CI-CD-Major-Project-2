@@ -1,6 +1,6 @@
 import { Dispatch } from '@reduxjs/toolkit'
 import toast from 'react-hot-toast'
-import { apiConnectorLegacy as apiConnector, endpoints } from '../api'
+import { apiCall, endpoints } from '../api'
 import { setLoading, setToken } from '@/store/slices/authSlice'
 import { resetCart } from '@/store/slices/cartSlice'
 import { setUser } from '@/store/slices/profileSlice'
@@ -18,7 +18,7 @@ export function sendOtp(email: string, navigate: any) {
     const toastId = toast.loading('Loading...')
     dispatch(setLoading(true))
     try {
-      const response = await apiConnector('POST', SENDOTP_API, {
+      const response = await apiCall('POST', SENDOTP_API, {
         email,
         checkUserPresent: true,
       })
@@ -59,7 +59,7 @@ export function signUp(
     const toastId = toast.loading('Loading...')
     dispatch(setLoading(true))
     try {
-      const response = await apiConnector('POST', SIGNUP_API, {
+      const response = await apiCall('POST', SIGNUP_API, {
         accountType,
         firstName,
         lastName,
@@ -96,7 +96,7 @@ export function login(email: string, password: string, navigate: any) {
     const toastId = toast.loading('Logging in...')
     dispatch(setLoading(true))
     try {
-      const response = await apiConnector('POST', LOGIN_API, {
+      const response = await apiCall('POST', LOGIN_API, {
         email,
         password,
       })
@@ -156,7 +156,7 @@ export function getPasswordResetToken(email: string, setEmailSent: (sent: boolea
     const toastId = toast.loading('Loading...')
     dispatch(setLoading(true))
     try {
-      const response = await apiConnector('POST', RESETPASSTOKEN_API, {
+      const response = await apiCall('POST', RESETPASSTOKEN_API, {
         email,
       })
 
@@ -182,7 +182,7 @@ export function resetPassword(password: string, confirmPassword: string, token: 
     const toastId = toast.loading('Loading...')
     dispatch(setLoading(true))
     try {
-      const response = await apiConnector('POST', RESETPASSWORD_API, {
+      const response = await apiCall('POST', RESETPASSWORD_API, {
         password,
         confirmPassword,
         token,

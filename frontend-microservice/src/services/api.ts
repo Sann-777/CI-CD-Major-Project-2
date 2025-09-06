@@ -106,17 +106,10 @@ export const endpoints = {
     GET_AVERAGE_RATING_API: '/api/v1/rating/getAverageRating',
   },
   
-  // Payment Endpoints
-  PAYMENT: {
-    COURSE_PAYMENT_API: '/api/v1/payment/capturePayment',
-    COURSE_VERIFY_API: '/api/v1/payment/verifyPayment',
-    SEND_PAYMENT_SUCCESS_EMAIL_API: '/api/v1/payment/sendPaymentSuccessEmail',
-    PAYMENT_HISTORY_API: '/api/v1/payment/paymentHistory',
-  },
   
   // Contact and Notification Endpoints
   CONTACT: {
-    CONTACT_US_API: '/api/v1/notification/contact',
+    CONTACT_US_API: '/api/v1/reach/contact',
   },
   
   // Media Upload Endpoints

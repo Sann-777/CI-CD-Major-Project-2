@@ -17,14 +17,9 @@ exports.auth = async (req, res, next) => {
     }
 
     try {
-      // Verify token with auth service
-      const authResponse = await axios.post(
-        `${process.env.AUTH_SERVICE_URL}/api/v1/auth/verify-token`,
-        { token },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      req.user = authResponse.data.user;
+      // Verify the JWT using the secret key
+      const decode = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decode;
     } catch (error) {
       return res.status(401).json({ 
         success: false, 

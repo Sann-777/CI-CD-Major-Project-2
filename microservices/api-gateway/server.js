@@ -31,12 +31,11 @@ app.use(express.urlencoded({ extended: true }));
 // Service URLs
 const services = {
   auth: process.env.AUTH_SERVICE_URL || 'http://localhost:3001',
-  course: process.env.COURSE_SERVICE_URL || 'http://localhost:3003',
-  payment: process.env.PAYMENT_SERVICE_URL || 'http://localhost:3002',
   profile: process.env.PROFILE_SERVICE_URL || 'http://localhost:3004',
-  rating: process.env.RATING_SERVICE_URL || 'http://localhost:3007',
+  course: process.env.COURSE_SERVICE_URL || 'http://localhost:3003',
+  rating: process.env.RATING_SERVICE_URL || 'http://localhost:3005',
   notification: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3006',
-  media: process.env.MEDIA_SERVICE_URL || 'http://localhost:3005'
+  media: process.env.MEDIA_SERVICE_URL || 'http://localhost:3007'
 };
 
 // Proxy configuration
@@ -76,10 +75,9 @@ const createProxy = (target) => createProxyMiddleware({
 
 // Route proxying
 app.use('/api/v1/auth', createProxy(services.auth));
+app.use('/api/v1/profile', createProxy(services.profile));
 app.use('/api/v1/course', createProxy(services.course));
 app.use('/api/v1/category', createProxy(services.course));
-app.use('/api/v1/payment', createProxy(services.payment));
-app.use('/api/v1/profile', createProxy(services.profile));
 app.use('/api/v1/rating', createProxy(services.rating));
 app.use('/api/v1/notification', createProxy(services.notification));
 app.use('/api/v1/reach', createProxy(services.notification));
@@ -135,6 +133,11 @@ function getServiceEndpoints(serviceName) {
       'POST /api/v1/auth/reset-password-token',
       'POST /api/v1/auth/reset-password'
     ],
+    profile: [
+      'GET /api/v1/profile/getUserDetails',
+      'POST /api/v1/profile/updateProfile',
+      'GET /api/v1/profile/getEnrolledCourses'
+    ],
     course: [
       'POST /api/v1/course/createCourse',
       'GET /api/v1/course/getAllCourses',
@@ -144,16 +147,6 @@ function getServiceEndpoints(serviceName) {
       'POST /api/v1/course/addSubSection',
       'GET /api/v1/category/showAllCategories',
       'POST /api/v1/category/createCategory'
-    ],
-    payment: [
-      'POST /api/v1/payment/capturePayment',
-      'POST /api/v1/payment/verifyPayment',
-      'GET /api/v1/payment/paymentHistory'
-    ],
-    profile: [
-      'GET /api/v1/profile/getUserDetails',
-      'POST /api/v1/profile/updateProfile',
-      'GET /api/v1/profile/getEnrolledCourses'
     ],
     rating: [
       'POST /api/v1/rating/createRating',
@@ -190,10 +183,9 @@ app.use('*', (req, res) => {
     message: 'Route not found',
     availableRoutes: [
       '/api/v1/auth/*',
+      '/api/v1/profile/*',
       '/api/v1/course/*',
       '/api/v1/category/*',
-      '/api/v1/payment/*',
-      '/api/v1/profile/*',
       '/api/v1/rating/*',
       '/api/v1/notification/*',
       '/api/v1/media/*'

@@ -18,7 +18,6 @@ exports.auth = async (req, res, next) => {
     try {
       // Verify the JWT using the secret key
       const decode = jwt.verify(token, process.env.JWT_SECRET);
-      console.log(decode);
       req.user = decode;
     } catch (error) {
       // Verification failed, return 401 Unauthorized response
