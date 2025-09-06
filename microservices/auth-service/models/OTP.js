@@ -20,16 +20,28 @@ const OTPSchema = new mongoose.Schema({
 
 // Define a function to send emails
 async function sendVerificationEmail(email, otp) {
-  try {
-    const mailResponse = await mailSender(
-      email,
-      "Verification Email",
-      emailTemplate(otp)
-    );
-    console.log("Email sent successfully:", mailResponse.response);
-  } catch (error) {
-    console.log("Error occurred while sending email: ", error);
-    throw error;
+  // Check if email is configured for production
+  const isEmailConfigured = process.env.MAIL_USER && 
+                            process.env.MAIL_PASS && 
+                            process.env.MAIL_USER !== 'your_email@gmail.com';
+
+  if (isEmailConfigured) {
+    try {
+      const mailResponse = await mailSender(
+        email,
+        "Verification Email",
+        emailTemplate(otp)
+      );
+      console.log("Email sent successfully:", mailResponse.response);
+    } catch (error) {
+      console.log("Error occurred while sending email: ", error);
+      throw error;
+    }
+  } else {
+    // Development mode - simulate email sending
+    console.log("=== DEVELOPMENT MODE - OTP EMAIL SIMULATION ===");
+    console.log(`OTP for ${email}: ${otp}`);
+    console.log("=== EMAIL WOULD BE SENT IN PRODUCTION ===");
   }
 }
 

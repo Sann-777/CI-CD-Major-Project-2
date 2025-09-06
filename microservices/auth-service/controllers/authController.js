@@ -48,7 +48,7 @@ exports.signup = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User already exists. Please sign in to continue.",
+        message: "Email already exists. Please sign in to continue.",
       });
     }
 
@@ -117,7 +117,7 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: `User is not Registered with Us Please SignUp to Continue`,
+        message: `Invalid email address. Please check your email or sign up first.`,
       });
     }
 
@@ -148,7 +148,7 @@ exports.login = async (req, res) => {
     } else {
       return res.status(401).json({
         success: false,
-        message: `Password is incorrect`,
+        message: `Invalid password. Please check your password and try again.`,
       });
     }
   } catch (error) {
@@ -171,9 +171,9 @@ exports.sendotp = async (req, res) => {
     // If checkUserPresent is true, we're checking for new user registration
     // If user exists, return error
     if (checkUserPresent && existingUser) {
-      return res.status(401).json({
+      return res.status(400).json({
         success: false,
-        message: `User is Already Registered`,
+        message: `Email already exists. Please sign in to continue.`,
       });
     }
 

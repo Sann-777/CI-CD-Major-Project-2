@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
 import { useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
+import { AppDispatch } from '@/store'
 import { login } from '@/services/operations/authAPI'
 import frameImg from '@/assets/Images/frame.png'
 import loginImg from '@/assets/Images/login.webp'
 
 function Login() {
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const [formData, setFormData] = useState({
     email: '',
     password: '',

@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import toast from 'react-hot-toast';
 
 // Base API configuration
 const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3000';
@@ -39,14 +38,8 @@ apiConnector.interceptors.response.use(
       window.location.href = '/login';
     }
     
-    // Don't show toast for auth API calls as they handle their own error messages
-    const isAuthAPI = error.config?.url?.includes('/auth/');
-    const isContactAPI = error.config?.url?.includes('/notification/contact');
-    
-    if (!isAuthAPI && !isContactAPI) {
-      const message = error.response?.data?.message || 'Service temporarily unavailable';
-      toast.error(message);
-    }
+    // Don't show toast in interceptor - let individual API functions handle their own messages
+    // This prevents duplicate toasts
     
     return Promise.reject(error);
   }
