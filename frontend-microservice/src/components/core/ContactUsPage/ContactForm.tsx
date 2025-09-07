@@ -11,6 +11,7 @@ interface FormData {
   email: string
   phoneNo: string
   message: string
+  countrycode: string
 }
 
 const ContactForm: React.FC = () => {
@@ -27,8 +28,13 @@ const ContactForm: React.FC = () => {
     const toastId = toast.loading('Sending message...')
     try {
       setLoading(true)
-      const res = await apiConnector.post(contactusEndpoint.CONTACT_US_API, data)
+      
+      // Use the form data directly since countrycode is now included
+      const formData = data
+      
+      const res = await apiConnector.post(contactusEndpoint.CONTACT_US_API, formData)
       console.log("Email Res - ", res)
+      
       if (res.data.success) {
         toast.success("Message sent successfully!")
         reset()
@@ -37,7 +43,16 @@ const ContactForm: React.FC = () => {
       }
     } catch (error: any) {
       console.log("ERROR MESSAGE - ", error)
-      const errorMessage = error.response?.data?.message || "Failed to send message. Please try again."
+      let errorMessage = "Failed to send message. Please try again."
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error
+      } else if (error.message && !error.message.includes('Network Error')) {
+        errorMessage = error.message
+      }
+      
       toast.error(errorMessage)
     } finally {
       setLoading(false)
@@ -53,6 +68,7 @@ const ContactForm: React.FC = () => {
         lastName: "",
         message: "",
         phoneNo: "",
+        countrycode: "+91",
       })
     }
   }, [reset, isSubmitSuccessful])
@@ -121,10 +137,10 @@ const ContactForm: React.FC = () => {
           <div className="flex gap-x-4">
             <div className="flex w-[81px] flex-col gap-2">
               <select
-                name="countrycode"
                 id="countrycode"
                 className="w-full rounded-lg bg-richblack-700 border border-richblack-600 px-4 py-3 text-richblack-5 focus:outline-none focus:border-yellow-50"
                 defaultValue="+91"
+                {...register("countrycode")}
               >
                 {CountryCode.map((ele, i) => {
                   return (

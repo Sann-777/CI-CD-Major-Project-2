@@ -41,6 +41,7 @@ services:
       - RATING_SERVICE_URL=http://rating-service:3005
       - MEDIA_SERVICE_URL=http://media-service:3006
       - NOTIFICATION_SERVICE_URL=http://notification-service:3007
+      - FRONTEND_URL=http://frontend:3008
     depends_on:
       mongodb:
         condition: service_healthy
@@ -73,6 +74,8 @@ services:
       - MAIL_PORT=587
       - MAIL_USER=${MAIL_USER:-your-email@gmail.com}
       - MAIL_PASS=${MAIL_PASS:-your-app-password}
+      - FRONTEND_URL=http://frontend:3008
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3007
     depends_on:
       mongodb:
         condition: service_healthy
@@ -216,6 +219,7 @@ services:
       - MAIL_USER=${MAIL_USER:-your-email@gmail.com}
       - MAIL_PASS=${MAIL_PASS:-your-app-password}
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-here}
+      - FRONTEND_URL=http://frontend:3008
     depends_on:
       mongodb:
         condition: service_healthy
@@ -239,6 +243,7 @@ services:
       - "3008:3008"
     environment:
       - NODE_ENV=production
+      - API_GATEWAY_URL=http://api-gateway:3000
     depends_on:
       - api-gateway
     networks:

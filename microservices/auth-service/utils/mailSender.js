@@ -22,11 +22,11 @@ const mailSender = async (email, title, body) => {
       subject: title,
       html: body,
     });
-    console.log("Email info: ", info);
+    console.log("Email sent successfully:", info.messageId);
     return info;
   } catch (error) {
-    console.log(error.message);
-    return error.message;
+    console.error("Auth service mail sender error:", error.message);
+    throw error;
   }
 };
 

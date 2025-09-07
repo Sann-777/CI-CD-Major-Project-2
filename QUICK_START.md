@@ -58,7 +58,7 @@ npm install
 npm run dev
 ```
 ✅ **Legacy Frontend**: http://localhost:3000
-✅ **Legacy Backend**: http://localhost:4000
+✅ **Legacy Backend**: http://localhost:3000
 
 ### 4. Environment Variables
 
@@ -66,7 +66,7 @@ Create `.env` files in each service directory:
 
 #### Frontend (.env)
 ```env
-VITE_API_GATEWAY_URL=http://localhost:4000
+VITE_API_GATEWAY_URL=http://localhost:3000
 VITE_NODE_ENV=development
 ```
 
@@ -96,7 +96,7 @@ brew services start mongodb-community  # macOS
 ### 5. Test the Application
 
 1. **Frontend**: http://localhost:3000
-2. **API Gateway**: http://localhost:4000/health
+2. **API Gateway**: http://localhost:3000/health
 3. **Auth Service**: http://localhost:4001/health
 4. **Course Service**: http://localhost:4002/health
 
@@ -162,7 +162,7 @@ npm run lint         # Run ESLint
 ### Health Checks
 ```bash
 # Check all services
-curl http://localhost:4000/health
+curl http://localhost:3000/health
 
 # Check individual services
 curl http://localhost:4001/health  # Auth

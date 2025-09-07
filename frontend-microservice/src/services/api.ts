@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-// Base API configuration
-const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:4000';
+// Base API configuration - Use empty string for relative URLs in Docker
+const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '';
 
 // Create axios instance
 const apiConnector: AxiosInstance = axios.create({

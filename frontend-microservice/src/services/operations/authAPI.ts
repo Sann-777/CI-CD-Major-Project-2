@@ -163,17 +163,15 @@ export function getPasswordResetToken(email: string, setEmailSent: (sent: boolea
         email,
       })
 
-      console.log('RESETPASSTOKEN RESPONSE............', response)
-
-      if (!response.data.success) {
-        throw new Error(response.data.message)
+      if (!response.success) {
+        throw new Error(response.message)
       }
 
       toast.success('Reset Email Sent')
       setEmailSent(true)
     } catch (error: any) {
-      console.log('RESETPASSTOKEN ERROR............', error)
-      toast.error('Failed To Send Reset Email')
+      const errorMessage = error.response?.data?.message || error.message || 'Failed To Send Reset Email'
+      toast.error(errorMessage)
     }
     toast.dismiss(toastId)
     dispatch(setLoading(false))
@@ -191,17 +189,15 @@ export function resetPassword(password: string, confirmPassword: string, token: 
         token,
       })
 
-      console.log('RESETPASSWORD RESPONSE............', response)
-
-      if (!response.data.success) {
-        throw new Error(response.data.message)
+      if (!response.success) {
+        throw new Error(response.message)
       }
 
       toast.success('Password Reset Successfully')
       navigate('/login')
     } catch (error: any) {
-      console.log('RESETPASSWORD ERROR............', error)
-      toast.error('Failed To Reset Password')
+      const errorMessage = error.response?.data?.message || error.message || 'Failed To Reset Password'
+      toast.error(errorMessage)
     }
     toast.dismiss(toastId)
     dispatch(setLoading(false))

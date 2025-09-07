@@ -34,8 +34,8 @@ const services = {
   profile: process.env.PROFILE_SERVICE_URL || 'http://localhost:3004',
   course: process.env.COURSE_SERVICE_URL || 'http://localhost:3003',
   rating: process.env.RATING_SERVICE_URL || 'http://localhost:3005',
-  notification: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3006',
-  media: process.env.MEDIA_SERVICE_URL || 'http://localhost:3007'
+  notification: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3007',
+  media: process.env.MEDIA_SERVICE_URL || 'http://localhost:3006'
 };
 
 // Proxy configuration

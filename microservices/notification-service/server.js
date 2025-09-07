@@ -10,7 +10,7 @@ const contactRoutes = require('./routes/contact');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
-const PORT = process.env.PORT || 3006;
+const PORT = process.env.PORT || 3007;
 
 // Security middleware
 app.use(helmet());

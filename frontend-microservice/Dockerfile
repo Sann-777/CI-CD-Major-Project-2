@@ -20,13 +20,20 @@ COPY frontend-microservice/ ./
 RUN npm run build:force
 
 # Production stage
-FROM nginx:alpine AS production
+FROM nginx:alpine
 
-# Copy custom nginx configuration
-COPY frontend-microservice/nginx.conf /etc/nginx/nginx.conf
+# Add environment variable substitution for API Gateway URL
+RUN apk add --no-cache gettext wget
 
 # Copy built application
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY frontend-microservice/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy and setup entrypoint script
+COPY frontend-microservice/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 # Create non-root user (nginx group already exists)
 RUN adduser -S nginxuser -u 1001 -G nginx
@@ -50,5 +57,5 @@ EXPOSE 3008
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3008 || exit 1
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start nginx with entrypoint
+CMD ["/docker-entrypoint.sh"]
