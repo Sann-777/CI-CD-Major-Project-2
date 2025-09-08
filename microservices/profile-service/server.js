@@ -10,7 +10,7 @@ const profileRoutes = require('./routes/profile');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3004;
 
 // Security middleware
 app.use(helmet());

@@ -1,7 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 // Base API configuration - Use empty string for relative URLs in Docker
-const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '';
+// In Docker, nginx proxy handles /api requests, so use empty baseURL
+const BASE_URL = '';
 
 // Create axios instance
 const apiConnector: AxiosInstance = axios.create({

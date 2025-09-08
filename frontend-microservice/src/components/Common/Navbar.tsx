@@ -6,7 +6,7 @@ import { Link, matchPath, useLocation } from 'react-router-dom'
 import { RootState } from '@/store'
 import { ACCOUNT_TYPE } from '@/utils/constants'
 import { NavbarLinks } from '@/data/navbar-links'
-import { apiConnector } from '@/services/api'
+import { apiCall, endpoints } from '@/services/api'
 import ProfileDropdown from './ProfileDropdown'
 // import logo from '../../assets/Logo/Logo-Full-Light.png'
 
@@ -30,10 +30,16 @@ const Navbar = () => {
     const fetchCategories = async () => {
       setLoading(true)
       try {
-        const res = await apiConnector.get('/api/v1/category/showAllCategories')
-        setSubLinks(res.data.data)
-      } catch (error) {
+        const response = await apiCall('GET', endpoints.CATEGORIES.CATEGORIES_API)
+        if (response.success) {
+          setSubLinks(response.data || [])
+        } else {
+          console.log('Could not fetch Categories:', response.message)
+        }
+      } catch (error: any) {
         console.log('Could not fetch Categories.', error)
+        const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch categories'
+        console.error('Category fetch error:', errorMessage)
       }
       setLoading(false)
     }

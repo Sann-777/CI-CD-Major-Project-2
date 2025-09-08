@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { apiConnector } from '@/services/apiConnector'
-import { contactusEndpoint } from '@/services/apis'
+import { apiCall, endpoints } from '@/services/api'
 import CountryCode from '@/data/countrycode.json'
 
 interface FormData {
@@ -32,14 +31,14 @@ const ContactForm: React.FC = () => {
       // Use the form data directly since countrycode is now included
       const formData = data
       
-      const res = await apiConnector.post(contactusEndpoint.CONTACT_US_API, formData)
+      const res = await apiCall('POST', endpoints.CONTACT.CONTACT_US_API, formData)
       console.log("Email Res - ", res)
       
-      if (res.data.success) {
+      if (res.success) {
         toast.success("Message sent successfully!")
         reset()
       } else {
-        toast.error(res.data.message || "Failed to send message")
+        toast.error(res.message || "Failed to send message")
       }
     } catch (error: any) {
       console.log("ERROR MESSAGE - ", error)

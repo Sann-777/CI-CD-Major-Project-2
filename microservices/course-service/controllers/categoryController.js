@@ -32,13 +32,23 @@ exports.createCategory = async (req, res) => {
 // Show all categories
 exports.showAllCategories = async (req, res) => {
   try {
+    // Set cache control headers to prevent 304 responses
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'ETag': false
+    });
+
     const allCategorys = await Category.find(
       {},
       { name: true, description: true }
     );
+    
     res.status(200).json({
       success: true,
       data: allCategorys,
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     return res.status(500).json({

@@ -24,6 +24,16 @@ app.use(cors({
   credentials: true
 }));
 
+// Disable caching globally at gateway level
+app.use((req, res, next) => {
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
+  next();
+});
+
 // Body parsing middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -44,6 +54,8 @@ const createProxy = (target) => createProxyMiddleware({
   changeOrigin: true,
   timeout: 30000,
   logLevel: 'debug',
+  ignorePath: false,
+  secure: false,
   onError: (err, req, res) => {
     console.error(`Proxy error for ${target}:`, err.message);
     if (!res.headersSent) {
@@ -56,10 +68,27 @@ const createProxy = (target) => createProxyMiddleware({
   },
   onProxyReq: (proxyReq, req, res) => {
     console.log(`Proxying ${req.method} ${req.url} to ${target}`);
-    // Forward original headers
+    
+    // Completely remove all caching headers from client request
+    proxyReq.removeHeader('if-modified-since');
+    proxyReq.removeHeader('if-none-match');
+    proxyReq.removeHeader('etag');
+    proxyReq.removeHeader('last-modified');
+    proxyReq.removeHeader('cache-control');
+    
+    // Force fresh request headers
+    proxyReq.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    proxyReq.setHeader('Pragma', 'no-cache');
+    proxyReq.setHeader('Expires', '0');
+    
+    // Add unique identifier to force fresh response
+    proxyReq.setHeader('X-Request-ID', Date.now().toString());
+    
+    // Forward authorization headers
     if (req.headers.authorization) {
       proxyReq.setHeader('Authorization', req.headers.authorization);
     }
+    
     // Handle body for POST requests
     if (req.body && (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH')) {
       const bodyData = JSON.stringify(req.body);
@@ -70,6 +99,23 @@ const createProxy = (target) => createProxyMiddleware({
   },
   onProxyRes: (proxyRes, req, res) => {
     console.log(`Response from ${req.url}: ${proxyRes.statusCode}`);
+    
+    // Completely override response headers to prevent caching
+    proxyRes.headers['cache-control'] = 'no-cache, no-store, must-revalidate, max-age=0';
+    proxyRes.headers['pragma'] = 'no-cache';
+    proxyRes.headers['expires'] = '0';
+    proxyRes.headers['x-timestamp'] = Date.now().toString();
+    
+    // Remove all caching-related headers
+    delete proxyRes.headers['etag'];
+    delete proxyRes.headers['last-modified'];
+    delete proxyRes.headers['vary'];
+    
+    // Force status to 200 if it's 304
+    if (proxyRes.statusCode === 304) {
+      proxyRes.statusCode = 200;
+      console.log(`Converted 304 to 200 for ${req.url}`);
+    }
   }
 });
 

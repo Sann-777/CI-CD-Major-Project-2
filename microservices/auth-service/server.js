@@ -12,6 +12,9 @@ const { errorHandler } = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Disable ETag generation globally
+app.set('etag', false);
+
 // Security middleware
 app.use(helmet());
 
@@ -27,6 +30,16 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3008',
   credentials: true
 }));
+
+// Disable caching globally to prevent network errors
+app.use((req, res, next) => {
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
+  next();
+});
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

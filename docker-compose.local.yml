@@ -7,8 +7,8 @@ services:
     container_name: studynotion-mongodb
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password123}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     ports:
       - "27017:27017"
     volumes:
@@ -32,17 +32,8 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - AUTH_SERVICE_URL=http://auth-service:3001
-      - COURSE_SERVICE_URL=http://course-service:3003
-      - PROFILE_SERVICE_URL=http://profile-service:3004
-      - RATING_SERVICE_URL=http://rating-service:3005
-      - MEDIA_SERVICE_URL=http://media-service:3006
-      - NOTIFICATION_SERVICE_URL=http://notification-service:3007
-      - FRONTEND_URL=http://frontend:3008
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-here}
+    env_file:
+      - microservices/api-gateway/.env.local
     depends_on:
       mongodb:
         condition: service_healthy
@@ -64,19 +55,8 @@ services:
     restart: unless-stopped
     ports:
       - "3001:3001"
-    environment:
-      - NODE_ENV=production
-      - PORT=3001
-      - MONGODB_URL=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongodb:27017/studynotion-auth?authSource=admin
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-here}
-      - JWT_EXPIRE=7d
-      - COOKIE_EXPIRE=7
-      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-      - MAIL_PORT=587
-      - MAIL_USER=${MAIL_USER:-your-email@gmail.com}
-      - MAIL_PASS=${MAIL_PASS:-your-app-password}
-      - FRONTEND_URL=http://frontend:3008
-      - NOTIFICATION_SERVICE_URL=http://notification-service:3007
+    env_file:
+      - microservices/auth-service/.env.local
     depends_on:
       mongodb:
         condition: service_healthy
@@ -98,14 +78,8 @@ services:
     restart: unless-stopped
     ports:
       - "3003:3003"
-    environment:
-      - NODE_ENV=production
-      - PORT=3003
-      - MONGODB_URL=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongodb:27017/studynotion-course?authSource=admin
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-your-cloud-name}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-your-api-key}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-your-api-secret}
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-here}
+    env_file:
+      - microservices/course-service/.env.local
     depends_on:
       mongodb:
         condition: service_healthy
@@ -127,14 +101,8 @@ services:
     restart: unless-stopped
     ports:
       - "3004:3004"
-    environment:
-      - NODE_ENV=production
-      - PORT=3004
-      - MONGODB_URL=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongodb:27017/studynotion-profile?authSource=admin
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-your-cloud-name}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-your-api-key}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-your-api-secret}
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-here}
+    env_file:
+      - microservices/profile-service/.env.local
     depends_on:
       mongodb:
         condition: service_healthy
@@ -156,11 +124,8 @@ services:
     restart: unless-stopped
     ports:
       - "3005:3005"
-    environment:
-      - NODE_ENV=production
-      - PORT=3005
-      - MONGODB_URL=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongodb:27017/studynotion-rating?authSource=admin
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-here}
+    env_file:
+      - microservices/rating-service/.env.local
     depends_on:
       mongodb:
         condition: service_healthy
@@ -182,14 +147,8 @@ services:
     restart: unless-stopped
     ports:
       - "3006:3006"
-    environment:
-      - NODE_ENV=production
-      - PORT=3006
-      - MONGODB_URL=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongodb:27017/studynotion-media?authSource=admin
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-your-cloud-name}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-your-api-key}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-your-api-secret}
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-here}
+    env_file:
+      - microservices/media-service/.env.local
     depends_on:
       mongodb:
         condition: service_healthy
@@ -211,16 +170,8 @@ services:
     restart: unless-stopped
     ports:
       - "3007:3007"
-    environment:
-      - NODE_ENV=production
-      - PORT=3007
-      - MONGODB_URL=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password123}@mongodb:27017/studynotion-notification?authSource=admin
-      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-      - MAIL_PORT=587
-      - MAIL_USER=${MAIL_USER:-your-email@gmail.com}
-      - MAIL_PASS=${MAIL_PASS:-your-app-password}
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-here}
-      - FRONTEND_URL=http://frontend:3008
+    env_file:
+      - microservices/notification-service/.env.local
     depends_on:
       mongodb:
         condition: service_healthy
@@ -242,10 +193,8 @@ services:
     restart: unless-stopped
     ports:
       - "3008:3008"
-    environment:
-      - NODE_ENV=production
-      - VITE_API_BASE_URL=http://api-gateway:3000
-      - VITE_APP_NAME=${VITE_APP_NAME:-StudyNotion}
+    env_file:
+      - frontend-microservice/.env.local
     depends_on:
       - api-gateway
     networks:
@@ -259,11 +208,7 @@ services:
 
 volumes:
   mongodb_data:
-    driver: local
 
 networks:
   studynotion-network:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16

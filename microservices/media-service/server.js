@@ -12,7 +12,7 @@ const { errorHandler } = require('./middleware/errorHandler');
 const { cloudinaryConnect } = require('./config/cloudinary');
 
 const app = express();
-const PORT = process.env.PORT || 3007;
+const PORT = process.env.PORT || 3006;
 
 // Security middleware
 app.use(helmet());
