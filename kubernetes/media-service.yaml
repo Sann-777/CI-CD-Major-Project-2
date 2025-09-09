@@ -39,8 +39,17 @@ spec:
               key: NODE_ENV
         - name: PORT
           value: "3006"
+        # For production clusters with variable substitution support:
+        # - name: MONGODB_URL
+        #   value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb:27017/studynotion?authSource=admin"
+        # - name: MONGODB_URI
+        #   value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb:27017/studynotion?authSource=admin"
+        
+        # For minikube (hardcoded credentials):
         - name: MONGODB_URL
-          value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb:27017/studynotion?authSource=admin"
+          value: "mongodb://admin:password123@mongodb:27017/studynotion?authSource=admin"
+        - name: MONGODB_URI
+          value: "mongodb://admin:password123@mongodb:27017/studynotion?authSource=admin"
         - name: MONGO_USERNAME
           valueFrom:
             secretKeyRef:
