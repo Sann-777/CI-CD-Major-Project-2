@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: media-service
+  namespace: studynotion
+spec:
+  selector:
+    app: media-service
+  ports:
+    - port: 3006
+      targetPort: 3006
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-service
+  namespace: studynotion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: media-service
+  template:
+    metadata:
+      labels:
+        app: media-service
+    spec:
+      containers:
+      - name: media-service
+        image: asxhazard/studynotion-media-service:latest
+        ports:
+        - containerPort: 3006
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: NODE_ENV
+        - name: PORT
+          value: "3006"
+        - name: MONGODB_URL
+          value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb:27017/studynotion-media?authSource=admin"
+        - name: MONGO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: MONGO_USERNAME
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: MONGO_PASSWORD
+        - name: CLOUDINARY_CLOUD_NAME
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: CLOUDINARY_CLOUD_NAME
+        - name: CLOUDINARY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: CLOUDINARY_API_KEY
+        - name: CLOUDINARY_API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: CLOUDINARY_API_SECRET
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 5
+          periodSeconds: 5

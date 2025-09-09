@@ -1,0 +1,16 @@
+# Quick deployment script for all services
+# Usage: kubectl apply -f kubernetes/
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: studynotion-config
+  namespace: studynotion
+data:
+  # Non-sensitive configuration
+  JWT_EXPIRE: "7d"
+  COOKIE_EXPIRE: "7"
+  MAIL_HOST: "smtp.gmail.com"
+  MAIL_PORT: "587"
+  NODE_ENV: "production"
+  VITE_APP_NAME: "StudyNotion"

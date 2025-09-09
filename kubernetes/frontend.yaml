@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: studynotion
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 3008
+      targetPort: 3008
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: studynotion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: asxhazard/studynotion-frontend:latest
+        ports:
+        - containerPort: 3008
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: NODE_ENV
+        - name: VITE_API_BASE_URL
+          value: "http://api-gateway:3000"
+        - name: VITE_APP_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: VITE_APP_NAME
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3008
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3008
+          initialDelaySeconds: 5
+          periodSeconds: 5

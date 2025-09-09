@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: studynotion
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - port: 3007
+      targetPort: 3007
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: studynotion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+      - name: notification-service
+        image: asxhazard/studynotion-notification-service:latest
+        ports:
+        - containerPort: 3007
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: NODE_ENV
+        - name: PORT
+          value: "3007"
+        - name: MONGODB_URL
+          value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb:27017/studynotion-notification?authSource=admin"
+        - name: MONGO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: MONGO_USERNAME
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: MONGO_PASSWORD
+        - name: MAIL_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: MAIL_HOST
+        - name: MAIL_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: studynotion-config
+              key: MAIL_PORT
+        - name: MAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: MAIL_USER
+        - name: MAIL_PASS
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: MAIL_PASS
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: studynotion-secrets
+              key: JWT_SECRET
+        - name: FRONTEND_URL
+          value: "http://frontend:3008"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3007
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3007
+          initialDelaySeconds: 5
+          periodSeconds: 5
