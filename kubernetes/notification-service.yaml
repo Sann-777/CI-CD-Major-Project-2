@@ -40,7 +40,7 @@ spec:
         - name: PORT
           value: "3007"
         - name: MONGODB_URL
-          value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb:27017/studynotion-notification?authSource=admin"
+          value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb:27017/studynotion?authSource=admin"
         - name: MONGO_USERNAME
           valueFrom:
             secretKeyRef:
