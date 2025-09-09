@@ -37,7 +37,11 @@ export default defineConfig({
     allowedHosts: 'all', // Allow all hosts for development
     proxy: {
       '/api': {
+<<<<<<< HEAD
         target: process.env.VITE_API_URL || process.env.VITE_API_BASE_URL || `http://${getLanIp()}:4000`,
+=======
+        target: 'http://localhost:4000',
+>>>>>>> delta
         changeOrigin: true,
         secure: false,
         ws: true, // Enable WebSocket proxying

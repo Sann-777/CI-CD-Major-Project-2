@@ -16,9 +16,15 @@ exports.auth = async (req, res, next) => {
     }
 
     try {
+<<<<<<< HEAD
       // Verify token locally using JWT_SECRET
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded;
+=======
+      // Verify the JWT using the secret key
+      const decode = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decode;
+>>>>>>> delta
     } catch (error) {
       return res.status(401).json({ 
         success: false, 

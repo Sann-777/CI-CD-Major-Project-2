@@ -93,7 +93,7 @@ export interface RatingAndReview {
   createdAt: string;
 }
 
-// Cart and Payment Types
+// Cart Types (Payment functionality removed)
 export interface CartItem {
   _id: string;
   course: Course;

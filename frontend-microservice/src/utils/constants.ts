@@ -9,11 +9,7 @@ export const COURSE_STATUS = {
   PUBLISHED: "Published",
 }
 
-export const PAYMENT_STATUS = {
-  PENDING: "Pending",
-  SUCCESS: "Success",
-  FAILED: "Failed",
-}
+// Payment functionality removed - courses are now free enrollment
 
 export const USER_ROLES = {
   STUDENT: "Student",

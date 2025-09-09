@@ -1,5 +1,5 @@
 import { toast } from 'react-hot-toast'
-import { apiConnector } from '../apiConnector'
+import { apiCall } from '../api'
 import { courseEndpoints } from '../apis'
 
 const {
@@ -25,7 +25,7 @@ export const getAllCourses = async () => {
   const toastId = toast.loading("Loading...")
   let result = []
   try {
-    const response = await apiConnector("GET", GET_ALL_COURSE_API)
+    const response = await apiCall('GET', GET_ALL_COURSE_API)
     if (!response?.data?.success) {
       throw new Error("Could Not Fetch Course Categories")
     }
@@ -42,9 +42,7 @@ export const fetchCourseDetails = async (courseId: string) => {
   const toastId = toast.loading("Loading...")
   let result = null
   try {
-    const response = await apiConnector("POST", COURSE_DETAILS_API, {
-      courseId,
-    })
+    const response = await apiCall('POST', COURSE_DETAILS_API, { courseId })
     console.log("COURSE_DETAILS_API API RESPONSE............", response)
 
     if (!response.data.success) {
@@ -62,7 +60,7 @@ export const fetchCourseDetails = async (courseId: string) => {
 export const fetchCourseCategories = async () => {
   let result = []
   try {
-    const response = await apiConnector("GET", COURSE_CATEGORIES_API)
+    const response = await apiCall('GET', COURSE_CATEGORIES_API)
     console.log("COURSE_CATEGORIES_API API RESPONSE............", response)
     if (!response?.data?.success) {
       throw new Error("Could Not Fetch Course Categories")
@@ -79,9 +77,11 @@ export const addCourseDetails = async (data: any, token: string) => {
   let result = null
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector("POST", CREATE_COURSE_API, data, {
-      "Content-Type": "multipart/form-data",
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('POST', CREATE_COURSE_API, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      }
     })
     console.log("CREATE COURSE API RESPONSE............", response)
     if (!response?.data?.success) {
@@ -101,9 +101,11 @@ export const editCourseDetails = async (data: any, token: string) => {
   let result = null
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector("POST", EDIT_COURSE_API, data, {
-      "Content-Type": "multipart/form-data",
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('POST', EDIT_COURSE_API, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      }
     })
     console.log("EDIT COURSE API RESPONSE............", response)
     if (!response?.data?.success) {
@@ -123,8 +125,8 @@ export const createSection = async (data: any, token: string) => {
   let result = null
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector("POST", CREATE_SECTION_API, data, {
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('POST', CREATE_SECTION_API, data, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     console.log("CREATE SECTION API RESPONSE............", response)
     if (!response?.data?.success) {
@@ -144,8 +146,8 @@ export const createSubSection = async (data: any, token: string) => {
   let result = null
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector("POST", CREATE_SUBSECTION_API, data, {
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('POST', CREATE_SUBSECTION_API, data, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     console.log("CREATE SUB-SECTION API RESPONSE............", response)
     if (!response?.data?.success) {
@@ -165,8 +167,8 @@ export const updateSection = async (data: any, token: string) => {
   let result = null
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector("POST", UPDATE_SECTION_API, data, {
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('POST', UPDATE_SECTION_API, data, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     console.log("UPDATE SECTION API RESPONSE............", response)
     if (!response?.data?.success) {
@@ -186,8 +188,8 @@ export const updateSubSection = async (data: any, token: string) => {
   let result = null
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector("POST", UPDATE_SUBSECTION_API, data, {
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('POST', UPDATE_SUBSECTION_API, data, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     console.log("UPDATE SUB-SECTION API RESPONSE............", response)
     if (!response?.data?.success) {
@@ -207,8 +209,8 @@ export const deleteSection = async (data: any, token: string) => {
   let result = null
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector("POST", DELETE_SECTION_API, data, {
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('POST', DELETE_SECTION_API, data, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     console.log("DELETE SECTION API RESPONSE............", response)
     if (!response?.data?.success) {
@@ -228,8 +230,8 @@ export const deleteSubSection = async (data: any, token: string) => {
   let result = null
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector("POST", DELETE_SUBSECTION_API, data, {
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('POST', DELETE_SUBSECTION_API, data, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     console.log("DELETE SUB-SECTION API RESPONSE............", response)
     if (!response?.data?.success) {
@@ -249,12 +251,12 @@ export const fetchInstructorCourses = async (token: string) => {
   let result = []
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector(
-      "GET",
+    const response = await apiCall(
+      'GET',
       GET_ALL_INSTRUCTOR_COURSES_API,
       null,
       {
-        Authorization: `Bearer ${token}`,
+        headers: { Authorization: `Bearer ${token}` }
       }
     )
     console.log("INSTRUCTOR COURSES API RESPONSE............", response)
@@ -273,8 +275,8 @@ export const fetchInstructorCourses = async (token: string) => {
 export const deleteCourse = async (data: any, token: string) => {
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector("DELETE", DELETE_COURSE_API, data, {
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('DELETE', DELETE_COURSE_API, data, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     console.log("DELETE COURSE API RESPONSE............", response)
     if (!response?.data?.success) {
@@ -292,14 +294,12 @@ export const getFullDetailsOfCourse = async (courseId: string, token: string) =>
   const toastId = toast.loading("Loading...")
   let result = null
   try {
-    const response = await apiConnector(
-      "POST",
+    const response = await apiCall(
+      'POST',
       GET_FULL_COURSE_DETAILS_AUTHENTICATED,
+      { courseId },
       {
-        courseId,
-      },
-      {
-        Authorization: `Bearer ${token}`,
+        headers: { Authorization: `Bearer ${token}` }
       }
     )
     console.log("COURSE_FULL_DETAILS_API API RESPONSE............", response)
@@ -321,8 +321,8 @@ export const markLectureAsComplete = async (data: any, token: string) => {
   console.log("mark complete data", data)
   const toastId = toast.loading("Loading...")
   try {
-    const response = await apiConnector("POST", LECTURE_COMPLETION_API, data, {
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('POST', LECTURE_COMPLETION_API, data, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     console.log(
       "MARK_LECTURE_AS_COMPLETE_API API RESPONSE............",
@@ -347,8 +347,8 @@ export const createRating = async (data: any, token: string) => {
   const toastId = toast.loading("Loading...")
   let success = false
   try {
-    const response = await apiConnector("POST", CREATE_RATING_API, data, {
-      Authorization: `Bearer ${token}`,
+    const response = await apiCall('POST', CREATE_RATING_API, data, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     console.log("CREATE RATING API RESPONSE............", response)
     if (!response?.data?.success) {

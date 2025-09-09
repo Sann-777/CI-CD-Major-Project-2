@@ -1,6 +1,6 @@
 import { Dispatch } from '@reduxjs/toolkit'
 import toast from 'react-hot-toast'
-import { apiConnectorLegacy as apiConnector, endpoints } from '../api'
+import { apiCall, endpoints } from '../api'
 import { setUser, setLoading } from '@/store/slices/profileSlice'
 import { logout } from './authAPI'
 
@@ -18,8 +18,8 @@ export function getUserDetails(token: string, navigate: any) {
     const toastId = toast.loading('Loading...')
     dispatch(setLoading(true))
     try {
-      const response = await apiConnector('GET', GET_USER_DETAILS_API, null, {
-        Authorization: `Bearer ${token}`,
+      const response = await apiCall('GET', GET_USER_DETAILS_API, null, {
+        headers: { Authorization: `Bearer ${token}` }
       })
 
       console.log('GET_USER_DETAILS API RESPONSE............', response)
@@ -48,12 +48,12 @@ export async function getUserEnrolledCourses(token: string) {
   let result = []
   try {
     console.log('BEFORE Calling BACKEND API FOR ENROLLED COURSES')
-    const response = await apiConnector(
+    const response = await apiCall(
       'GET',
       GET_USER_ENROLLED_COURSES_API,
       null,
       {
-        Authorization: `Bearer ${token}`,
+        headers: { Authorization: `Bearer ${token}` }
       }
     )
     console.log('AFTER Calling BACKEND API FOR ENROLLED COURSES')
@@ -74,7 +74,7 @@ export function updateProfile(token: string, formData: any) {
   return async (dispatch: Dispatch) => {
     const toastId = toast.loading('Loading...')
     try {
-      const response = await apiConnector('PUT', UPDATE_PROFILE_API, formData, {
+      const response = await apiCall('PUT', UPDATE_PROFILE_API, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -105,7 +105,7 @@ export function updateDisplayPicture(token: string, formData: FormData) {
   return async (dispatch: Dispatch) => {
     const toastId = toast.loading('Loading...')
     try {
-      const response = await apiConnector(
+      const response = await apiCall(
         'PUT',
         UPDATE_DISPLAY_PICTURE_API,
         formData,
@@ -135,7 +135,7 @@ export function deleteProfile(token: string, navigate: any) {
   return async (dispatch: Dispatch) => {
     const toastId = toast.loading('Loading...')
     try {
-      const response = await apiConnector('DELETE', DELETE_PROFILE_API, null, {
+      const response = await apiCall('DELETE', DELETE_PROFILE_API, null, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -159,7 +159,7 @@ export async function getInstructorData(token: string) {
   const toastId = toast.loading('Loading...')
   let result = []
   try {
-    const response = await apiConnector('GET', GET_INSTRUCTOR_DATA_API, null, {
+    const response = await apiCall('GET', GET_INSTRUCTOR_DATA_API, null, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -91,9 +91,16 @@ exports.signup = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+<<<<<<< HEAD
       return res.status(409).json(
         createErrorResponse('An account with this email already exists')
       );
+=======
+      return res.status(400).json({
+        success: false,
+        message: "Email already exists. Please sign in to continue.",
+      });
+>>>>>>> delta
     }
 
     // Find the most recent OTP for the email
@@ -173,9 +180,47 @@ exports.login = async (req, res) => {
     // Find user with provided email
     const user = await User.findOne({ email });
     if (!user) {
+<<<<<<< HEAD
       return res.status(401).json(
         createErrorResponse('Invalid email or password')
       );
+=======
+      return res.status(401).json({
+        success: false,
+        message: `Invalid email address. Please check your email or sign up first.`,
+      });
+    }
+
+    // Generate JWT token and Compare Password
+    if (await bcrypt.compare(password, user.password)) {
+      const token = jwt.sign(
+        { email: user.email, id: user._id, accountType: user.accountType },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "24h",
+        }
+      );
+
+      // Save token to user document in database
+      user.token = token;
+      user.password = undefined;
+      // Set cookie for token and return success response
+      const options = {
+        expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+      };
+      res.cookie("token", token, options).status(200).json({
+        success: true,
+        token,
+        user,
+        message: `User Login Success`,
+      });
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: `Invalid password. Please check your password and try again.`,
+      });
+>>>>>>> delta
     }
 
     // Compare password
@@ -221,10 +266,23 @@ exports.sendotp = async (req, res) => {
   try {
     const { email, checkUserPresent } = req.body;
 
+<<<<<<< HEAD
     if (!email) {
       return res.status(400).json(
         createErrorResponse('Email is required')
       );
+=======
+    // Check if user is already present
+    const existingUser = await User.findOne({ email });
+    
+    // If checkUserPresent is true, we're checking for new user registration
+    // If user exists, return error
+    if (checkUserPresent && existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: `Email already exists. Please sign in to continue.`,
+      });
+>>>>>>> delta
     }
 
     // Validate email format

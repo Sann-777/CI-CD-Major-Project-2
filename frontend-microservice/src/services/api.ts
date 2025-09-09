@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import toast from 'react-hot-toast';
 
 // Dynamic API base URL configuration
 const getApiBaseUrl = () => {
@@ -22,7 +21,11 @@ const getApiBaseUrl = () => {
 };
 
 // Base API configuration
+<<<<<<< HEAD
 const BASE_URL = getApiBaseUrl();
+=======
+const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:4000';
+>>>>>>> delta
 
 // Create axios instance
 const apiConnector: AxiosInstance = axios.create({
@@ -53,13 +56,18 @@ apiConnector.interceptors.response.use(
     return response;
   },
   (error) => {
+<<<<<<< HEAD
     // Don't auto-redirect on 401 for login attempts
+=======
+    // Only redirect on 401 if it's NOT a login attempt
+>>>>>>> delta
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
     
+<<<<<<< HEAD
     // Don't show toast for auth and contact API calls as they handle their own error messages
     const isAuthAPI = error.config?.url?.includes('/auth/');
     const isContactAPI = error.config?.url?.includes('/notification/contact');
@@ -68,6 +76,10 @@ apiConnector.interceptors.response.use(
       const message = error.response?.data?.message || 'Service temporarily unavailable';
       toast.error(message);
     }
+=======
+    // Don't show toast in interceptor - let individual API functions handle their own messages
+    // This prevents duplicate toasts
+>>>>>>> delta
     
     return Promise.reject(error);
   }
@@ -127,17 +139,10 @@ export const endpoints = {
     GET_AVERAGE_RATING_API: '/api/v1/rating/getAverageRating',
   },
   
-  // Payment Endpoints
-  PAYMENT: {
-    COURSE_PAYMENT_API: '/api/v1/payment/capturePayment',
-    COURSE_VERIFY_API: '/api/v1/payment/verifyPayment',
-    SEND_PAYMENT_SUCCESS_EMAIL_API: '/api/v1/payment/sendPaymentSuccessEmail',
-    PAYMENT_HISTORY_API: '/api/v1/payment/paymentHistory',
-  },
   
   // Contact and Notification Endpoints
   CONTACT: {
-    CONTACT_US_API: '/api/v1/notification/contact',
+    CONTACT_US_API: '/api/v1/reach/contact',
   },
   
   // Media Upload Endpoints

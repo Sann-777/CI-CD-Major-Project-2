@@ -5,14 +5,14 @@ interface CourseState {
   step: number;
   course: Course | null;
   editCourse: boolean;
-  paymentLoading: boolean;
+  enrollmentLoading: boolean;
 }
 
 const initialState: CourseState = {
   step: 1,
   course: null,
   editCourse: false,
-  paymentLoading: false,
+  enrollmentLoading: false,
 };
 
 const courseSlice = createSlice({
@@ -28,8 +28,8 @@ const courseSlice = createSlice({
     setEditCourse: (state, action: PayloadAction<boolean>) => {
       state.editCourse = action.payload;
     },
-    setPaymentLoading: (state, action: PayloadAction<boolean>) => {
-      state.paymentLoading = action.payload;
+    setEnrollmentLoading: (state, action: PayloadAction<boolean>) => {
+      state.enrollmentLoading = action.payload;
     },
     resetCourseState: (state) => {
       state.step = 1;
@@ -43,7 +43,7 @@ export const {
   setStep,
   setCourse,
   setEditCourse,
-  setPaymentLoading,
+  setEnrollmentLoading,
   resetCourseState,
 } = courseSlice.actions;
 

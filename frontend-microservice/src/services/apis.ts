@@ -54,12 +54,9 @@ export const ratingEndpoints = {
   GET_AVERAGE_RATING_API: endpoints.RATING.GET_AVERAGE_RATING_API,
 }
 
-// Payment endpoints
+// Student endpoints (payment removed)
 export const studentEndpoints = {
-  COURSE_PAYMENT_API: endpoints.PAYMENT.COURSE_PAYMENT_API,
-  COURSE_VERIFY_API: endpoints.PAYMENT.COURSE_VERIFY_API,
-  SEND_PAYMENT_SUCCESS_EMAIL_API: endpoints.PAYMENT.SEND_PAYMENT_SUCCESS_EMAIL_API,
-  PAYMENT_HISTORY_API: endpoints.PAYMENT.PAYMENT_HISTORY_API,
+  // Payment functionality removed - courses are now free
 }
 
 // Contact endpoints
