@@ -129,8 +129,17 @@ app.use('/api/v1/notification', createProxy(services.notification));
 app.use('/api/v1/reach', createProxy(services.notification));
 app.use('/api/v1/media', createProxy(services.media));
 
-// Health check endpoint
-app.get('/health', async (req, res) => {
+// Simple health check endpoint for Kubernetes probes
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    service: 'api-gateway',
+    status: 'healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Detailed health check endpoint for monitoring
+app.get('/health/detailed', async (req, res) => {
   const healthChecks = {};
   
   // Check health of all services
@@ -148,7 +157,7 @@ app.get('/health', async (req, res) => {
 
   const allHealthy = Object.values(healthChecks).every(status => status === 'healthy');
 
-  res.status(allHealthy ? 200 : 503).json({
+  res.status(200).json({
     service: 'api-gateway',
     status: allHealthy ? 'healthy' : 'degraded',
     timestamp: new Date().toISOString(),

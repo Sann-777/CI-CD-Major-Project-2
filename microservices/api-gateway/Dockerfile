@@ -7,14 +7,14 @@ RUN apk add --no-cache git wget
 WORKDIR /app
 
 # Copy package files
-COPY microservices/api-gateway/package*.json ./
+COPY package*.json ./
 
 # Install dependencies
 RUN npm install --omit=dev && \
     npm cache clean --force
 
 # Copy application code
-COPY microservices/api-gateway/ ./
+COPY . ./
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs 2>/dev/null || true && \

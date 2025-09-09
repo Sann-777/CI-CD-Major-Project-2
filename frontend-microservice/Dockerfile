@@ -7,14 +7,14 @@ RUN apk add --no-cache git wget
 WORKDIR /app
 
 # Copy package files
-COPY frontend-microservice/package*.json ./
+COPY package*.json ./
 
 # Install dependencies
 RUN npm install && \
     npm cache clean --force
 
 # Copy source code
-COPY frontend-microservice/ ./
+COPY . ./
 
 # Build the application (bypass TypeScript errors)
 RUN npm run build:force
@@ -29,10 +29,10 @@ RUN apk add --no-cache gettext wget
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration
-COPY frontend-microservice/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy and setup entrypoint script
-COPY frontend-microservice/docker-entrypoint.sh /docker-entrypoint.sh
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
 # Create non-root user (nginx group already exists)
