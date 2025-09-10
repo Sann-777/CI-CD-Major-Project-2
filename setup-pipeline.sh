@@ -85,15 +85,19 @@ echo "✅ npm version: $(npm --version)"
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "📁 Project root: $PROJECT_ROOT"
 
-# Install root dependencies first
-echo "📦 Checking root dependencies..."
+# Skip root dependencies installation in CI/CD (causes hanging with workspaces)
+echo "📦 Skipping root dependencies (workspace project)..."
 cd "$PROJECT_ROOT"
-if [ -d "node_modules" ] && [ -f "package-lock.json" ]; then
-    echo "⚡ Root dependencies already cached"
+
+# Only install root deps if specifically needed and not in CI
+if [ "$CI" != "true" ] && [ "$JENKINS_URL" = "" ] && [ ! -d "node_modules" ]; then
+    echo "💾 Installing root dependencies for local development..."
+    # Use npm install without workspace resolution to avoid hanging
+    npm install --no-workspaces --production=false --silent 2>/dev/null || {
+        echo "⚠️  Root dependency installation failed, continuing with individual services..."
+    }
 else
-    echo "💾 Installing root dependencies..."
-    npm ci --cache ~/.npm --prefer-offline --silent 2>/dev/null || npm install --production=false --silent
-    echo "✅ Root dependencies installed"
+    echo "⚡ Skipping root dependencies in CI/CD environment"
 fi
 
 # Install dependencies for all microservices
