@@ -1,0 +1,139 @@
+@Library('Shared') _
+pipeline {
+    agent any
+    
+    environment{
+        SONAR_HOME = tool "Sonar"
+    }
+    
+    parameters {
+       string(name: 'SERVICE', defaultValue: 'all', description: 'Enter services (keywords, all OR frontend,api-gateway,auth-service,notification-service, etc..)')
+       string(name: 'IMAGE_TAG', defaultValue: 'v1', description: 'Enter the new image tag')
+       string(name: 'BRANCH', defaultValue: 'main', description: 'Enter the branch you want to work on')
+   }
+    
+    stages{
+        stage("Validate Parameters") {
+            steps {
+                script {
+                    if (params.SERVICE == '' || params.IMAGE_TAG == '' || params.BRANCH == '') {
+                        error("SERVICE namde, IMAGE_TAG and BRANCH must be provided.")
+                    }
+                }
+            }
+        }
+        
+        stage("Workspace Cleanup"){
+            steps{
+                script{
+                    clean_workspace()
+                }
+            }
+        }
+        
+        stage("Git: Code Checkout"){
+            steps{
+                script{
+                    code_checkout("https://github.com/Sann-777/CI-CD-Major-Project-2.git","${params.BRANCH}")
+                }
+            }
+        }
+        
+        stage("Secret: Secret Leak Scanning"){
+            steps{
+                script{
+                    secret_scan(allowFailure: true)
+                }
+            }
+        }
+        
+        stage('Install and Cache Dependencies') {
+            steps {
+                script {
+                    sh 'chmod +x setup-pipeline.sh'
+                    sh './setup-pipeline.sh'
+                }
+            }
+        }
+        
+        stage("Testing"){
+            parallel{
+                stage("Unit Testing"){
+                    steps{
+                        script{
+                            sh 'npm run test || true'
+                        }
+                    }
+                }
+                stage("Lint and Style Testing"){
+                    steps{
+                        script{
+                            sh 'npm run lint || true'
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage("SonarQube: Code Analysis"){
+            steps{
+                script{
+                    sonarqube_analysis("Sonar","studynotion","studynotion")
+                }
+            }
+        }
+        
+        stage("SonarQube: Code Quality Gates"){
+            steps{
+                script{
+                    sonarqube_code_quality()
+                }
+            }
+        }
+        
+        stage("OWASP: Dependency Check"){
+            steps{
+                script{
+                    owasp_dependency()
+                }
+            }
+        }
+        
+        stage("Trivy: Filesystem Scan"){
+            steps{
+                script{
+                    trivy_scan()
+                }
+            }
+        }
+        
+        stage("Dokcer: Build Images"){
+            steps{
+                script{
+                    docker_build(params)
+                }
+            }
+        }
+        
+        stage("Docker: Push to Dockerhub"){
+            steps{
+                script{
+                    docker_push(params)
+                }
+            }
+        }
+    }
+    
+    post{
+        success{
+            echo "CI of your project is successfull"
+            archiveArtifacts artifacts: '*.xml', followSymlinks: false
+            archiveArtifacts artifacts: '*.json', followSymlinks: false
+            build job: "StudyNotion-CD", parameters: [
+                string(name: 'SERVICE', value: "${params.SERVICE}"),
+                string(name: 'IMAGE_TAG', value: "${params.IMAGE_TAG}"),
+                string(name: 'BRANCH', value: "${params.BRANCH}")
+            ]
+        }
+    }
+}

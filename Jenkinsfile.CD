@@ -1,0 +1,128 @@
+@Library('Shared') _
+pipeline {
+    agent any
+    
+   parameters {
+       string(name: 'SERVICE', defaultValue: 'all', description: 'Enter services (keywords, all OR frontend,api-gateway,auth-service,notification-service, etc..)')
+       string(name: 'IMAGE_TAG', defaultValue: 'v1', description: 'Enter the new image tag')
+       string(name: 'BRANCH', defaultValue: 'main', description: 'Enter the branch you want to work on')
+   }
+    
+    stages{
+        stage("Validate Parameters") {
+            steps {
+                script {
+                    if (params.SERVICE == '' || params.IMAGE_TAG == '' || params.BRANCH == '') {
+                        error("SERVICE namde, IMAGE_TAG and BRANCH must be provided.")
+                    }
+                }
+            }
+        }
+        
+        stage("Workspace Cleanup"){
+            steps{
+                script{
+                    clean_workspace()
+                }
+            }
+        }
+        
+        stage("Git: Code Checkout"){
+            steps{
+                script{
+                    code_checkout("https://github.com/Sann-777/CI-CD-Major-Project-2.git","${params.BRANCH}")
+                }
+            }
+        }
+        
+        stage("Verify: Docker Image Tags"){
+            steps{
+                script{
+                    verify_tags()
+                }
+            }
+        }
+        
+        stage("Update: Manifests Files"){
+            steps{
+                script{
+                    update_image_tags(params)
+                }
+            }
+        }
+        
+        stage('Push to GitHub') {
+            steps {
+                script{
+                    withCredentials([gitUsernamePassword(credentialsId: 'Github', gitToolName: 'Default')]) {
+                        sh '''
+                        echo "Checking repository status: "
+                        git status
+                    
+                        echo "Adding changes to git: "
+                        git add .
+                        
+                        echo "Setting Git identity: "
+                        git config user.email "jenkins@example.com"
+                        git config user.name "Jenkins CI"
+
+                        echo "Committing changes: "
+                        git commit -m "Automated Commit from Jenkins" || echo "No changes to commit"
+                        
+                        echo "Pushing changes to github: "
+                        git push https://github.com/Sann-777/CI-CD-Major-Project-2.git k8s
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    
+     post {
+        success {
+            script {
+                emailext attachLog: true,
+                from: 'hazardeager@gmail.com',
+                subject: "StudyNotion Application has been updated and deployed - '${currentBuild.result}'",
+                body: """
+                    <html>
+                    <body>
+                        <div style="background-color: #FFA07A; padding: 10px; margin-bottom: 10px;">
+                            <p style="color: black; font-weight: bold;">Project: ${env.JOB_NAME}</p>
+                        </div>
+                        <div style="background-color: #90EE90; padding: 10px; margin-bottom: 10px;">
+                            <p style="color: black; font-weight: bold;">Build Number: ${env.BUILD_NUMBER}</p>
+                        </div>
+                        <div style="background-color: #87CEEB; padding: 10px; margin-bottom: 10px;">
+                            <p style="color: black; font-weight: bold;">URL: ${env.BUILD_URL}</p>
+                        </div>
+                    </body>
+                    </html>
+            """,
+            to: 'hazardeager@gmail.com',
+            mimeType: 'text/html'
+            }
+        }
+        failure {
+            script {
+                emailext attachLog: true,
+                from: 'hazardeager@gmail.com',
+                subject: "StudyNotion Application build failed - '${currentBuild.result}'",
+                body: """
+                    <html>
+                    <body>
+                        <div style="background-color: #FFA07A; padding: 10px; margin-bottom: 10px;">
+                            <p style="color: black; font-weight: bold;">Project: ${env.JOB_NAME}</p>
+                        </div>
+                        <div style="background-color: #90EE90; padding: 10px; margin-bottom: 10px;">
+                            <p style="color: black; font-weight: bold;">Build Number: ${env.BUILD_NUMBER}</p>
+                        </div>
+                    </body>
+                    </html>
+            """,
+            to: 'hazardeager@gmail.com',
+            mimeType: 'text/html'
+            }
+        }
+    }
+}
