@@ -129,7 +129,7 @@ app.use('/api/v1/notification', createProxy(services.notification));
 app.use('/api/v1/reach', createProxy(services.notification));
 app.use('/api/v1/media', createProxy(services.media));
 
-// Simple health check endpoint for Kubernetes probes
+// FOR KUBERNETES: Simple health check endpoint for probes (always returns 200)
 app.get('/health', (req, res) => {
   res.status(200).json({
     service: 'api-gateway',
@@ -138,7 +138,36 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Detailed health check endpoint for monitoring
+// FOR DOCKER COMPOSE: Detailed health check (uncomment block below and comment simple health check above)
+/*
+app.get('/health', async (req, res) => {
+  const healthChecks = {};
+  
+  // Check health of all services
+  for (const [serviceName, serviceUrl] of Object.entries(services)) {
+    try {
+      const axios = require('axios');
+      const response = await axios.get(`${serviceUrl}/health`, { 
+        timeout: 5000 
+      });
+      healthChecks[serviceName] = response.status === 200 ? 'healthy' : 'unhealthy';
+    } catch (error) {
+      healthChecks[serviceName] = 'unhealthy';
+    }
+  }
+  
+  const allHealthy = Object.values(healthChecks).every(status => status === 'healthy');
+  
+  res.status(allHealthy ? 200 : 503).json({
+    service: 'api-gateway',
+    status: allHealthy ? 'healthy' : 'degraded',
+    timestamp: new Date().toISOString(),
+    services: healthChecks
+  });
+});
+*/
+
+// Detailed health check endpoint for monitoring (works in both Docker and Kubernetes)
 app.get('/health/detailed', async (req, res) => {
   const healthChecks = {};
   
