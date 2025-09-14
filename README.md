@@ -51,7 +51,7 @@ Ensure you have the following installed:
 ### 1. Clone and Setup
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone <repository-url>
 cd studynotion-edtech-project-main
 
